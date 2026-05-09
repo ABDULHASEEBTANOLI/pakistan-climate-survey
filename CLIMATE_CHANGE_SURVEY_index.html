@@ -1,0 +1,1643 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pakistan Climate Survey 2026 — PIEAS National Research Initiative</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=Lora:ital,wght@0,600;0,700;1,600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script>
+/* ═══════════════════════════════════════════════════════════
+   ★  ADMIN SETUP — EDIT THESE 3 THINGS BEFORE SHARING  ★
+   ═══════════════════════════════════════════════════════════
+
+   1. ADMIN_PASSWORD  → Change to your own secure password
+   2. SHEETS_URL      → After Google Apps Script deploy, paste
+                        the Web App URL here (OR do it via
+                        Admin Panel → Setup → paste & save)
+   3. Your EMAIL      → Goes INSIDE THE APPS SCRIPT CODE only
+                        (see Admin Panel → Setup → Step 3)
+                        You do NOT add it in this HTML file.
+
+   ═══════════════════════════════════════════════════════════ */
+const CONFIG = {
+  SHEETS_URL:     '',               /* ← Paste Apps Script Web App URL here (or via Admin Panel) */
+  ADMIN_PASSWORD: '*1haseeb2#',   /* ← CHANGE THIS to your own password                        */
+  SURVEY_YEAR:    '2026',
+  ORG_NAME:       'Pakistan Institute of Engineering & Applied Sciences (PIEAS)',
+  DEPT:           'Department of Metallurgy & Materials Engineering',
+  LOCATION:       'PIEAS, Nilore, Islamabad, Pakistan',
+  CONTACT_EMAIL:  'abdulhaseebtanoli2007@gmail.com',   /* ← Change to your actual email (shown on landing) */
+};
+/* ═══════════════════════════════════════════════════════════ */
+
+const DISTRICTS = {
+  'Punjab': ['Attock','Bahawalnagar','Bahawalpur','Bhakkar','Chakwal','Chiniot','Dera Ghazi Khan','Faisalabad','Gujranwala','Gujrat','Hafizabad','Jhang','Jhelum','Kasur','Khanewal','Khushab','Lahore','Layyah','Lodhran','Mandi Bahauddin','Mianwali','Multan','Muzaffargarh','Narowal','Nankana Sahib','Okara','Pakpattan','Rahim Yar Khan','Rajanpur','Rawalpindi','Sahiwal','Sargodha','Sheikhupura','Sialkot','Toba Tek Singh','Vehari','Other'],
+  'Sindh': ['Badin','Dadu','Ghotki','Hyderabad','Jacobabad','Jamshoro','Karachi Central','Karachi East','Karachi Korangi','Karachi Malir','Karachi South','Karachi West','Kashmore','Khairpur','Larkana','Matiari','Mirpur Khas','Naushahro Feroze','Qambar Shahdadkot','Sanghar','Shaheed Benazirabad','Shikarpur','Sukkur','Tando Allahyar','Tando Muhammad Khan','Tharparkar','Thatta','Umerkot','Other'],
+  'KPK': ['Abbottabad','Bajaur','Bannu','Battagram','Buner','Charsadda','Chitral Lower','Chitral Upper','Dera Ismail Khan','Haripur','Karak','Khyber','Kohistan','Kohat','Kurram','Lakki Marwat','Malakand','Mansehra','Mardan','Mohmand','North Waziristan','Nowshera','Orakzai','Peshawar','Shangla','South Waziristan','Swabi','Swat','Tank','Tor Ghar','Other'],
+  'Balochistan': ['Awaran','Barkhan','Chagai','Dera Bugti','Gwadar','Harnai','Jaffarabad','Kalat','Kech','Kharan','Khuzdar','Killa Abdullah','Killa Saifullah','Kohlu','Lasbela','Loralai','Mastung','Musakhel','Nasirabad','Nushki','Panjgur','Pishin','Quetta','Sherani','Sibi','Washuk','Zhob','Ziarat','Other'],
+  'Islamabad (ICT)': ['Islamabad'],
+  'Azad Jammu & Kashmir': ['Bagh','Bhimber','Haveli','Hattian Bala','Jhelum Valley','Kotli','Mirpur','Muzaffarabad','Neelum','Poonch','Rawalakot','Sudhnati','Other'],
+  'Gilgit-Baltistan': ['Astore','Diamer','Ghanche','Ghizer','Gilgit','Hunza','Kharmang','Nagar','Shigar','Skardu','Other']
+};
+</script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+:root{
+  --g1:#064e3b;--g2:#059669;--g3:#a7f3d0;--g4:#ecfdf5;--g5:#f0fdf4;
+  --amb:#b45309;--amb-l:#fef3c7;
+  --red:#dc2626;--red-l:#fee2e2;
+  --t1:#111827;--t2:#4b5563;--t3:#9ca3af;
+  --bd:#d1d5db;--bd2:#e5e7eb;
+  --wh:#fff;--bg:#f8fafc;
+  --r:10px;--rl:16px;
+  --sh:0 2px 8px rgba(0,0,0,.08),0 6px 24px rgba(0,0,0,.07);
+}
+body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(--t1);min-height:100vh;line-height:1.65}
+
+/* HEADER */
+.site-hdr{background:linear-gradient(135deg,#022c22 0%,var(--g1) 100%);color:#fff;padding:10px 20px 8px;text-align:center;position:sticky;top:0;z-index:300;border-bottom:3px solid var(--g2)}
+.hdr-top{display:flex;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap}
+.hdr-logo{font-size:.65rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;background:rgba(255,255,255,.12);padding:3px 9px;border-radius:4px;border:1px solid rgba(255,255,255,.2);white-space:nowrap}
+.site-hdr h1{font-family:'Lora',serif;font-size:1.08rem;letter-spacing:-.01em}
+.site-hdr small{font-size:.68rem;opacity:.6;display:block;margin-top:2px}
+.ticker-bar{overflow:hidden;height:24px;margin-top:6px;border-top:1px solid rgba(255,255,255,.12)}
+.ticker-track{display:flex;animation:ticker 80s linear infinite;white-space:nowrap;align-items:center;height:24px}
+.ticker-track:hover{animation-play-state:paused}
+.t-item{padding:0 3rem;font-size:.67rem;color:#a7f3d0;opacity:.9}
+@keyframes ticker{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
+
+/* TOAST */
+.toast{position:fixed;bottom:1.5rem;right:1.5rem;padding:.75rem 1.25rem;border-radius:var(--r);font-size:.83rem;z-index:9999;box-shadow:var(--sh);transition:transform .3s,opacity .3s;transform:translateX(120%);opacity:0;max-width:320px;pointer-events:none}
+.toast.show{transform:translateX(0);opacity:1;pointer-events:auto}
+.toast.success{background:var(--g1);color:#fff}.toast.error{background:#991b1b;color:#fff}.toast.info{background:#1e3a5f;color:#fff}
+
+/* CONSENT MODAL */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.65);z-index:500;align-items:center;justify-content:center;padding:1rem}
+.modal-overlay.active{display:flex}
+.modal-box{background:var(--wh);border-radius:var(--rl);max-width:620px;width:100%;max-height:90vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.3)}
+.modal-hdr{background:var(--g1);color:#fff;padding:1.4rem 1.75rem;border-radius:var(--rl) var(--rl) 0 0}
+.modal-hdr h2{font-family:'Lora',serif;font-size:1.2rem;margin-bottom:4px}
+.modal-hdr p{font-size:.73rem;opacity:.75}
+.modal-body{padding:1.5rem 1.75rem}
+.consent-section{margin-bottom:1.1rem}
+.consent-section h4{font-size:.82rem;font-weight:700;color:var(--g1);margin-bottom:.4rem;text-transform:uppercase;letter-spacing:.04em}
+.consent-section p{font-size:.81rem;color:var(--t2);line-height:1.6}
+.consent-check-row{display:flex;align-items:flex-start;gap:12px;background:var(--g5);border:2px solid var(--g3);border-radius:var(--r);padding:1rem;margin-top:1rem;cursor:pointer}
+.consent-check-row input[type=checkbox]{width:18px;height:18px;flex-shrink:0;cursor:pointer;accent-color:var(--g1);margin-top:2px}
+.consent-check-row span{font-size:.82rem;color:var(--t1);font-weight:500;line-height:1.5}
+.modal-foot{display:flex;gap:10px;justify-content:flex-end;padding:1.1rem 1.75rem;border-top:1px solid var(--bd2);background:var(--bg);border-radius:0 0 var(--rl) var(--rl)}
+.btn-consent{padding:11px 28px;border-radius:var(--r);font-family:'Plus Jakarta Sans',sans-serif;font-size:.88rem;font-weight:700;cursor:pointer;border:none;transition:.15s}
+.btn-consent.proceed{background:var(--g1);color:#fff}.btn-consent.proceed:hover{background:var(--g2)}
+.btn-consent.proceed:disabled{opacity:.4;cursor:not-allowed}
+.btn-consent.decline{background:transparent;border:1.5px solid var(--bd);color:var(--t2)}.btn-consent.decline:hover{border-color:#dc2626;color:#dc2626}
+
+/* ADMIN PANEL */
+#adminWrap{display:none;max-width:1060px;margin:0 auto;padding:2rem 1.5rem 4rem}
+.adm-hdr{display:flex;justify-content:space-between;align-items:center;margin-bottom:1.5rem;padding-bottom:1rem;border-bottom:2px solid var(--g3)}
+.adm-hdr h2{font-family:'Lora',serif;font-size:1.5rem;color:var(--g1)}
+.adm-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;margin-bottom:1.5rem}
+@media(max-width:580px){.adm-stats{grid-template-columns:1fr 1fr}}
+.astat{background:var(--wh);border:1px solid var(--bd2);border-radius:var(--r);padding:1.25rem;text-align:center}
+.astat-n{font-size:2rem;font-weight:700;color:var(--g1);font-family:'Lora',serif}
+.astat-l{font-size:.75rem;color:var(--t2);margin-top:3px}
+.adm-actions{display:flex;gap:.75rem;flex-wrap:wrap;margin-bottom:1rem}
+.ab{padding:9px 20px;border-radius:var(--r);font-family:'Plus Jakarta Sans',sans-serif;font-size:.83rem;font-weight:500;cursor:pointer;border:none;transition:.15s}
+.ab.green{background:var(--g1);color:#fff}.ab.green:hover{background:var(--g2)}
+.ab.amber{background:var(--amb);color:#fff}.ab.amber:hover{background:#92400e}
+.ab.red{background:#b91c1c;color:#fff}.ab.red:hover{background:#991b1b}
+.ab.out{background:transparent;border:1.5px solid var(--g1);color:var(--g1)}.ab.out:hover{background:var(--g4)}
+.charts-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:1rem;margin-bottom:1.5rem}
+@media(max-width:700px){.charts-row{grid-template-columns:1fr}}
+.chart-box{background:var(--wh);border:1px solid var(--bd2);border-radius:var(--r);padding:1rem;text-align:center}
+.chart-box h4{font-size:.8rem;font-weight:600;color:var(--g1);margin-bottom:.75rem}
+.chart-box canvas{max-height:180px}
+.adm-search{display:flex;gap:10px;margin-bottom:.75rem;align-items:center;flex-wrap:wrap}
+.adm-search input{padding:9px 14px;border:1.5px solid var(--bd);border-radius:var(--r);font-family:'Plus Jakarta Sans',sans-serif;font-size:.83rem;outline:none;flex:1;min-width:200px}
+.adm-search input:focus{border-color:var(--g2)}
+.adm-search select{padding:9px 14px;border:1.5px solid var(--bd);border-radius:var(--r);font-family:'Plus Jakarta Sans',sans-serif;font-size:.83rem;outline:none;cursor:pointer}
+.tbl-wrap{overflow-x:auto;border:1px solid var(--bd);border-radius:var(--r);margin-bottom:1rem}
+.adm-tbl{width:100%;border-collapse:collapse;font-size:.76rem}
+.adm-tbl th{background:var(--g1);color:#fff;padding:9px 12px;text-align:left;white-space:nowrap;font-weight:500}
+.adm-tbl td{padding:8px 12px;border-bottom:1px solid var(--bd2);white-space:nowrap;max-width:220px;overflow:hidden;text-overflow:ellipsis}
+.adm-tbl tr:last-child td{border-bottom:none}
+.adm-tbl tr:hover td{background:var(--g5)}
+.adm-pag{display:flex;gap:8px;align-items:center;font-size:.78rem;color:var(--t2);flex-wrap:wrap;margin-bottom:1.5rem}
+.adm-pag button{padding:5px 12px;border:1.5px solid var(--bd);border-radius:6px;background:var(--wh);cursor:pointer;font-size:.78rem}
+.adm-pag button:hover{border-color:var(--g2);color:var(--g1)}
+.adm-pag button:disabled{opacity:.35;cursor:not-allowed}
+.empty-state{text-align:center;padding:3rem;color:var(--t3);font-size:.88rem}
+.setup-panel{background:var(--g5);border:1px solid var(--g3);border-radius:var(--rl);padding:1.5rem;margin-top:1.5rem}
+.setup-panel h3{color:var(--g1);font-size:1rem;font-weight:600;margin-bottom:1rem}
+.step-list{counter-reset:s;display:flex;flex-direction:column;gap:.75rem}
+.stp{counter-increment:s;display:flex;gap:.75rem;font-size:.83rem;color:var(--t2);align-items:flex-start}
+.stp::before{content:counter(s);width:24px;height:24px;background:var(--g2);color:#fff;border-radius:50%;font-size:.72rem;font-weight:600;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px}
+.stp strong{color:var(--t1)}
+.code-box{position:relative;background:#1e293b;color:#e2e8f0;border-radius:var(--r);padding:1.25rem;font-family:monospace;font-size:.7rem;line-height:1.7;overflow-x:auto;margin-top:.75rem;white-space:pre}
+.copy-code{position:absolute;top:8px;right:8px;background:var(--g2);color:#fff;border:none;padding:4px 10px;border-radius:4px;font-size:.68rem;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif}
+.copy-code:hover{background:var(--g1)}
+.url-input-row{display:flex;gap:8px;margin-top:.75rem}
+.url-input-row input{flex:1;padding:9px 12px;border:1.5px solid var(--bd);border-radius:var(--r);font-family:'Plus Jakarta Sans',sans-serif;font-size:.83rem;outline:none}
+.url-input-row input:focus{border-color:var(--g2)}
+.url-input-row button{padding:9px 18px;background:var(--g1);color:#fff;border:none;border-radius:var(--r);font-family:'Plus Jakarta Sans',sans-serif;font-size:.83rem;cursor:pointer}
+
+/* LANDING */
+.landing{max-width:900px;margin:0 auto;padding:0 1.5rem 4rem}
+.urgency-bar{background:linear-gradient(135deg,#7f1d1d,#b91c1c);color:#fff;text-align:center;padding:.65rem 1.5rem;font-size:.78rem;font-weight:600;letter-spacing:.02em}
+.urgency-bar span{opacity:.8;font-weight:400;margin-left:.5rem}
+.official-badges{display:flex;justify-content:center;flex-wrap:wrap;gap:.65rem;padding:1.5rem 0 .75rem}
+.ob{display:flex;align-items:center;gap:6px;font-size:.69rem;font-weight:600;padding:5px 12px;border-radius:20px;letter-spacing:.04em;text-transform:uppercase}
+.ob.blue{background:#eff6ff;color:#1d4ed8;border:1px solid #bfdbfe}
+.ob.green{background:var(--g4);color:var(--g1);border:1px solid var(--g3)}
+.ob.amber{background:var(--amb-l);color:var(--amb);border:1px solid #fcd34d}
+.ob.dark{background:#1e293b;color:#94a3b8;border:1px solid #334155}
+.ob.pieas{background:#f0f4ff;color:#1e40af;border:1px solid #bfdbfe}
+.hero{text-align:center;padding:1.5rem 0 2rem}
+.hero-seal{width:72px;height:72px;background:var(--g1);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:2rem;margin:0 auto 1.25rem;box-shadow:0 0 0 6px var(--g3),0 0 0 12px var(--g4)}
+.hero h2{font-family:'Lora',serif;font-size:2.2rem;color:var(--g1);line-height:1.18;margin-bottom:.75rem}
+.hero h2 em{font-style:italic;color:var(--g2)}
+.hero-sub{font-size:.88rem;color:var(--t2);max-width:560px;margin:0 auto 1.25rem;line-height:1.75}
+.stat-row{display:flex;justify-content:center;gap:2rem;flex-wrap:wrap;margin:1.5rem 0;padding:1.25rem;background:var(--wh);border:1px solid var(--bd2);border-radius:var(--rl)}
+.sr-item{text-align:center}
+.sr-n{font-size:1.6rem;font-weight:700;color:var(--g1);font-family:'Lora',serif;display:block}
+.sr-l{font-size:.7rem;color:var(--t3);text-transform:uppercase;letter-spacing:.05em}
+.ethics-note{background:#fffbeb;border:1px solid #fcd34d;border-radius:var(--r);padding:.85rem 1.1rem;font-size:.78rem;color:#92400e;display:flex;gap:8px;align-items:flex-start;margin:1rem 0;line-height:1.55}
+.hbadges{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:1rem}
+.hbadge{font-size:.72rem;padding:5px 12px;border-radius:20px;border:1px solid var(--bd2);background:var(--wh);color:var(--t2)}
+.fcards{display:grid;grid-template-columns:1fr 1fr;gap:1.25rem;margin-top:2rem}
+@media(max-width:600px){.fcards{grid-template-columns:1fr}}
+.fc{background:var(--wh);border:2px solid var(--bd2);border-radius:var(--rl);padding:2rem 1.75rem;cursor:pointer;transition:.22s;position:relative;overflow:hidden}
+.fc::before{content:'';position:absolute;top:0;left:0;right:0;height:5px;transform:scaleX(0);transition:.22s;transform-origin:left}
+.fc.pro::before{background:linear-gradient(90deg,var(--g1),var(--g2))}
+.fc.pub::before{background:linear-gradient(90deg,var(--amb),#f59e0b)}
+.fc:hover{box-shadow:var(--sh);transform:translateY(-4px)}
+.fc.pro:hover{border-color:var(--g2)}.fc.pub:hover{border-color:var(--amb)}
+.fc:hover::before{transform:scaleX(1)}
+.fc-ico{font-size:2.8rem;margin-bottom:1rem}
+.fc h3{font-family:'Lora',serif;font-size:1.22rem;color:var(--g1);margin-bottom:.5rem}
+.fc p{font-size:.83rem;color:var(--t2);line-height:1.6;margin-bottom:1.25rem}
+.fc-meta{display:flex;flex-direction:column;gap:5px;margin-bottom:1.5rem}
+.fc-mi{font-size:.77rem;color:var(--t3);display:flex;align-items:center;gap:7px}
+.fc-mi::before{content:'◆';font-size:.45rem;color:var(--g2)}.fc.pub .fc-mi::before{color:var(--amb)}
+.fc-btn{display:block;width:100%;padding:12px;text-align:center;border:none;border-radius:var(--r);font-family:'Plus Jakarta Sans',sans-serif;font-size:.9rem;font-weight:700;cursor:pointer;transition:.15s;letter-spacing:.02em}
+.fc.pro .fc-btn{background:var(--g1);color:#fff}.fc.pro .fc-btn:hover{background:var(--g2)}
+.fc.pub .fc-btn{background:var(--amb);color:#fff}.fc.pub .fc-btn:hover{background:#92400e}
+.admin-link{text-align:center;margin-top:2rem;font-size:.75rem;color:var(--t3)}
+.admin-link a{color:var(--t3);text-decoration:underline;cursor:pointer}
+
+/* FORM WRAPPER */
+.fw{display:none;max-width:820px;margin:0 auto;padding:2rem 1.5rem 5rem}
+.fw.active{display:block}
+.back-row{margin-bottom:1rem}
+.back-btn{font-size:.8rem;color:var(--t3);background:none;border:none;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;display:flex;align-items:center;gap:4px;padding:0}
+.back-btn:hover{color:var(--g1)}
+
+/* PROGRESS */
+.prog{background:var(--wh);border:1px solid var(--bd2);border-radius:var(--r);padding:1rem 1.25rem;margin-bottom:1.5rem}
+.prog-top{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px}
+.prog-lbl{font-size:.72rem;color:var(--t3);font-weight:600;text-transform:uppercase;letter-spacing:.05em}
+.prog-pct{font-size:.95rem;font-weight:700;color:var(--g2)}
+.prog-bg{height:6px;background:var(--bd2);border-radius:6px;overflow:hidden}
+.prog-fill{height:100%;background:linear-gradient(90deg,var(--g2),var(--g1));border-radius:6px;transition:width .4s ease}
+.prog-tip{font-size:.72rem;color:var(--g1);font-weight:500;margin-top:6px}
+.pdots{display:flex;gap:5px;margin-top:8px;flex-wrap:wrap}
+.pd{height:5px;border-radius:5px;flex:1;min-width:16px;background:var(--bd2);transition:.3s}
+.pd.done{background:var(--g3);border:1px solid var(--g2)}.pd.active{background:var(--g1)}
+
+/* SECTION CARD */
+.sc{display:none;background:var(--wh);border:1px solid var(--bd2);border-radius:var(--rl);overflow:hidden;box-shadow:var(--sh);animation:slideIn .3s ease}
+.sc.active{display:block}
+@keyframes slideIn{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
+.sc-hdr{padding:1.4rem 1.75rem;display:flex;align-items:center;gap:1rem}
+.sc-hdr-ico{font-size:2rem;flex-shrink:0}
+.sc-hdr-text{}
+.sc-hdr h2{font-family:'Lora',serif;font-size:1.05rem;color:#fff;margin-bottom:2px}
+.sc-hdr p{font-size:.72rem;color:rgba(255,255,255,.75)}
+.hg{background:#064e3b}.ht{background:#0f766e}.hb{background:#1d4ed8}.hv{background:#6d28d9}.ha{background:#b45309}.hc{background:#be185d}.hp{background:#155e75}.hr{background:#9a3412}
+.fact-box{margin:1.25rem 1.75rem 0;background:var(--g5);border-left:3px solid var(--g2);border-radius:0 var(--r) var(--r) 0;padding:.7rem 1rem;font-size:.76rem;color:var(--g1);line-height:1.5}
+.fact-box b{font-weight:600}
+.sc-body{padding:1.75rem}
+.sc-nav{display:flex;justify-content:space-between;align-items:center;padding:1.1rem 1.75rem;border-top:1px solid var(--bd2);background:var(--bg)}
+
+/* QUESTION */
+.qb{margin-bottom:1.75rem}
+.ql{font-size:.87rem;font-weight:600;color:var(--t1);margin-bottom:.5rem;line-height:1.45}
+.ql .rq{color:#dc2626;margin-left:2px}
+.qh{font-size:.73rem;color:var(--t3);margin-top:-4px;margin-bottom:7px;line-height:1.4}
+.opt-tag{font-size:.67rem;color:var(--t3);background:#f3f4f6;padding:2px 7px;border-radius:4px;font-weight:400;margin-left:5px;vertical-align:middle}
+.ve{font-size:.73rem;color:#dc2626;margin-top:4px;display:none}.ve.show{display:block}
+
+/* INPUTS */
+input[type=text],input[type=email],input[type=tel],select,textarea{width:100%;padding:10px 14px;border:1.5px solid var(--bd);border-radius:var(--r);font-family:'Plus Jakarta Sans',sans-serif;font-size:.87rem;color:var(--t1);background:var(--wh);transition:.15s;outline:none;appearance:none;-webkit-appearance:none}
+input:focus,select:focus,textarea:focus{border-color:var(--g2);box-shadow:0 0 0 3px rgba(5,150,105,.1)}
+input.err,select.err,textarea.err{border-color:#dc2626}
+select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%234b5563' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;padding-right:36px;cursor:pointer}
+textarea{resize:vertical;min-height:90px;line-height:1.6}
+.r2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media(max-width:520px){.r2{grid-template-columns:1fr}}
+.r3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px}
+@media(max-width:600px){.r3{grid-template-columns:1fr 1fr}}
+@media(max-width:400px){.r3{grid-template-columns:1fr}}
+.ph-wrap{position:relative}.ph-flag{position:absolute;left:12px;top:50%;transform:translateY(-50%);font-size:.85rem;pointer-events:none;user-select:none}
+.ph-wrap input{padding-left:36px}
+
+/* RADIO / CHECK */
+.rg,.cg{display:flex;flex-direction:column;gap:7px}
+.rg-div{font-size:.68rem;text-transform:uppercase;color:var(--t3);letter-spacing:.07em;font-weight:600;padding:8px 4px 4px;border-top:1px solid var(--bd2);margin-top:4px;display:flex;align-items:center;gap:6px}
+.rg-div:first-child{border-top:none;padding-top:0}
+.rd-badge{font-size:.62rem;padding:2px 6px;border-radius:3px}
+.rd-prov{background:var(--g4);color:var(--g1);border:1px solid var(--g3)}.rd-fed{background:var(--amb-l);color:var(--amb);border:1px solid #fcd34d}
+.ro,.co{display:flex;align-items:center;gap:10px;padding:10px 14px;border:1.5px solid var(--bd2);border-radius:var(--r);cursor:pointer;transition:.15s;font-size:.84rem;color:var(--t1)}
+.ro:hover,.co:hover{border-color:var(--g2);background:var(--g4)}
+.ro input,.co input{display:none}
+.rc,.cc{width:18px;height:18px;border:1.5px solid var(--bd);border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:.15s}
+.cc{border-radius:4px}
+.ro.sel,.co.sel{border-color:var(--g2);background:var(--g4)}
+.ro.sel .rc{background:var(--g2);border-color:var(--g2)}
+.ro.sel .rc::after{content:'';width:6px;height:6px;border-radius:50%;background:#fff}
+.co.sel .cc{background:var(--g2);border-color:var(--g2)}
+.co.sel .cc::after{content:'✓';color:#fff;font-size:11px;font-weight:700}
+.terr-tag{font-size:.66rem;padding:2px 7px;border-radius:3px;background:var(--amb-l);color:var(--amb);border:1px solid #fcd34d;margin-left:auto;flex-shrink:0;font-weight:500}
+.rg-inline{display:flex;flex-direction:row;gap:8px;flex-wrap:wrap}
+.rg-inline .ro{flex:1;min-width:120px}
+
+/* LIKERT */
+.lk-wrap{overflow-x:auto;padding-bottom:4px}
+.lk{display:flex;border:1.5px solid var(--bd);border-radius:var(--r);overflow:hidden;min-width:280px}
+.lko{flex:1;padding:10px 5px;text-align:center;cursor:pointer;font-size:.7rem;border-right:1px solid var(--bd);transition:.15s;color:var(--t2);user-select:none;line-height:1.3;background:var(--wh)}
+.lko:last-child{border-right:none}
+.lko:hover{background:var(--g4);color:var(--g1)}
+.lko .ln{display:block;font-size:1rem;font-weight:700;margin-bottom:2px}
+.lko.s1{background:#d1fae5;color:#064e3b}.lko.s2{background:#a7f3d0;color:#047857}.lko.s3{background:#fef9c3;color:#92400e}.lko.s4{background:#fed7aa;color:#9a3412}.lko.s5{background:#fecaca;color:#991b1b}
+.lk-lbl{display:flex;justify-content:space-between;font-size:.65rem;color:var(--t3);margin-top:4px;padding:0 2px}
+.lk-req-note{font-size:.72rem;color:var(--t3);margin-top:4px;display:none}
+
+/* IMPACT GRID */
+.ig{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+@media(max-width:480px){.ig{grid-template-columns:1fr}}
+.io{padding:11px 14px;border:1.5px solid var(--bd2);border-radius:var(--r);cursor:pointer;font-size:.82rem;display:flex;align-items:center;gap:9px;transition:.15s;color:var(--t2)}
+.io:hover{border-color:var(--g2);background:var(--g4);color:var(--g1)}
+.io.sel{border-color:var(--g2);background:var(--g4);color:var(--g1);font-weight:500}
+.io .ii{font-size:1.2rem;flex-shrink:0}
+
+/* BUTTONS */
+.btn{padding:10px 24px;border-radius:var(--r);font-family:'Plus Jakarta Sans',sans-serif;font-size:.85rem;font-weight:500;cursor:pointer;border:1.5px solid var(--bd);transition:.15s}
+.btn-bk{background:var(--wh);color:var(--t2)}.btn-bk:hover{border-color:var(--g2);color:var(--g1)}
+.btn-nx{background:var(--g1);color:#fff;border-color:var(--g1);padding:10px 30px}.btn-nx:hover{background:var(--g2);border-color:var(--g2)}
+.btn-sb{background:var(--amb);color:#fff;border-color:var(--amb);padding:10px 32px}.btn-sb:hover{background:#92400e;border-color:#92400e}
+
+/* INFO BOX */
+.ib{background:var(--g5);border:1px solid var(--g3);border-radius:var(--r);padding:11px 15px;font-size:.79rem;color:var(--g1);margin-bottom:1.25rem;display:flex;gap:8px;line-height:1.5}
+.dvd{border:none;border-top:1px solid var(--bd2);margin:1.5rem 0}
+.lcol{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media(max-width:480px){.lcol{grid-template-columns:1fr}}
+
+/* THANK YOU */
+.ty{display:none;max-width:620px;margin:0 auto;padding:4rem 2rem;text-align:center}
+.ty.active{display:block}
+.ty-ico{font-size:4rem;animation:pop .5s cubic-bezier(.175,.885,.32,1.275)}
+@keyframes pop{0%{transform:scale(0)}80%{transform:scale(1.15)}100%{transform:scale(1)}}
+.ty h2{font-family:'Lora',serif;font-size:1.9rem;color:var(--g1);margin:1rem 0 .75rem}
+.ty p{color:var(--t2);font-size:.88rem;max-width:400px;margin:0 auto .5rem;line-height:1.6}
+.ty-card{background:var(--g5);border:1px solid var(--g3);border-radius:var(--rl);padding:1.5rem;margin:1.5rem auto;max-width:380px;text-align:left}
+.ty-card h4{color:var(--g1);font-size:.85rem;font-weight:600;margin-bottom:.75rem}
+.ty-row{display:flex;justify-content:space-between;font-size:.8rem;padding:5px 0;border-bottom:1px solid var(--g3)}
+.ty-row:last-child{border-bottom:none;font-weight:600;color:var(--g1)}
+.ty-row .trl{color:var(--t2)}
+.ty-id{font-size:.7rem;color:var(--t3);margin-top:1.25rem;font-family:monospace}
+.ty-btns{margin-top:1.75rem;display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+.ty-btn{padding:11px 26px;border-radius:var(--r);font-family:'Plus Jakarta Sans',sans-serif;font-size:.87rem;font-weight:600;cursor:pointer;border:none;transition:.15s}
+.ty-btn.pr{background:var(--g1);color:#fff}.ty-btn.pr:hover{background:var(--g2)}
+.ty-btn.ot{background:transparent;border:1.5px solid var(--g2);color:var(--g1)}.ty-btn.ot:hover{background:var(--g4)}
+
+/* ACADEMIC FOOTER */
+.acad-footer{background:#0a2818;color:#9ca3af;text-align:center;padding:2.5rem 1.5rem;margin-top:0}
+.acad-footer .inst{font-family:'Lora',serif;color:#d1fae5;font-size:.95rem;margin-bottom:.35rem}
+.acad-footer .dept{font-size:.78rem;color:#6ee7b7;margin-bottom:.5rem}
+.acad-footer .info{font-size:.72rem;line-height:1.7;max-width:560px;margin:0 auto .75rem}
+.acad-footer .divln{border-top:1px solid #1e3a2b;margin:.85rem auto;max-width:300px}
+.acad-footer .copy{font-size:.68rem;color:#4b5563}
+</style>
+</head>
+<body>
+
+<header class="site-hdr">
+  <div class="hdr-top">
+    <span class="hdr-logo">🎓 PIEAS — Nilore, Islamabad</span>
+    <h1>🌿 Pakistan Climate Change Survey 2026</h1>
+    <span class="hdr-logo">National Research Initiative</span>
+  </div>
+  <small>Academic &amp; Policy Research | Informed by IPCC AR6 | SDG 13: Climate Action | BS Metallurgy &amp; Materials Engineering</small>
+  <div class="ticker-bar">
+    <div class="ticker-track" id="ticker"></div>
+  </div>
+</header>
+
+<div id="toast" class="toast"></div>
+
+<!-- ══════════════ CONSENT MODAL ══════════════ -->
+<div class="modal-overlay" id="consentModal">
+  <div class="modal-box">
+    <div class="modal-hdr">
+      <h2>📋 Research Participation Consent</h2>
+      <p>Pakistan Climate Change Survey 2026 — PIEAS National Research Initiative</p>
+    </div>
+    <div class="modal-body">
+      <div class="consent-section">
+        <h4>Study Title</h4>
+        <p>Climate Change Perception, Impact Assessment, and Policy Priorities in Pakistan — A National Survey (2026)</p>
+      </div>
+      <div class="consent-section">
+        <h4>Purpose</h4>
+        <p>This research aims to document lived experience and expert knowledge of climate change impacts across all provinces of Pakistan. Data will be used for academic publication and evidence-based policy recommendations.</p>
+      </div>
+      <div class="consent-section">
+        <h4>What We Collect</h4>
+        <p>Name, email, phone number, location (province/district), professional background, and your perceptions/observations about climate change. No sensitive financial or biometric data is collected.</p>
+      </div>
+      <div class="consent-section">
+        <h4>How Your Data Will Be Used</h4>
+        <p>Aggregated and anonymized data will be used for academic research, journal publication, and policy recommendation reports. Individual responses will NOT be shared publicly or sold to any third party.</p>
+      </div>
+      <div class="consent-section">
+        <h4>Voluntary Participation</h4>
+        <p>Participation is entirely voluntary. You may stop at any time. There are no negative consequences for declining or stopping.</p>
+      </div>
+      <div class="consent-section">
+        <h4>Contact</h4>
+        <p>For questions about this research, contact: <strong id="consent-email"></strong> — Department of Metallurgy &amp; Materials Engineering, PIEAS, Islamabad.</p>
+      </div>
+
+      <label class="consent-check-row" id="consentCheckRow">
+        <input type="checkbox" id="consentCheck" onchange="toggleConsentBtn()">
+        <span>I have read and understood the above. I voluntarily agree to participate in this research study, and I understand how my data will be used.</span>
+      </label>
+    </div>
+    <div class="modal-foot">
+      <button class="btn-consent decline" onclick="declineConsent()">Decline — Do Not Participate</button>
+      <button class="btn-consent proceed" id="consentProceedBtn" disabled onclick="proceedConsent()">I Consent — Proceed →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════ ADMIN PANEL ══════════════ -->
+<div id="adminWrap">
+  <div class="adm-hdr">
+    <h2>⚙️ Admin Dashboard — Survey Data</h2>
+    <div style="display:flex;gap:8px">
+      <button class="ab green" onclick="loadAdminData()">🔄 Refresh</button>
+      <button class="ab out" onclick="exitAdmin()">← Back to Form</button>
+    </div>
+  </div>
+
+  <div class="adm-stats">
+    <div class="astat"><div class="astat-n" id="adm-total">0</div><div class="astat-l">Total Responses</div></div>
+    <div class="astat"><div class="astat-n" id="adm-pro">0</div><div class="astat-l">Professional</div></div>
+    <div class="astat"><div class="astat-n" id="adm-pub">0</div><div class="astat-l">General Public</div></div>
+    <div class="astat"><div class="astat-n" id="adm-today">0</div><div class="astat-l">Today</div></div>
+  </div>
+
+  <div class="charts-row">
+    <div class="chart-box"><h4>📊 Response Type</h4><canvas id="chartType"></canvas></div>
+    <div class="chart-box"><h4>🗺️ By Province</h4><canvas id="chartProv"></canvas></div>
+    <div class="chart-box"><h4>📅 Submissions (Last 7 Days)</h4><canvas id="chartTime"></canvas></div>
+  </div>
+
+  <div class="adm-actions">
+    <button class="ab green" onclick="downloadCSV()">⬇ Download CSV (Full Data)</button>
+    <button class="ab amber" onclick="downloadJSON()">⬇ Download JSON</button>
+    <button class="ab red" onclick="clearData()">🗑 Clear Local Data</button>
+  </div>
+
+  <div class="adm-search">
+    <input type="text" id="admSearch" placeholder="🔍 Search by name, email, or province..." oninput="renderAdminTable()">
+    <select id="admFilter" onchange="renderAdminTable()">
+      <option value="">All Types</option>
+      <option value="Professional">Professional Only</option>
+      <option value="General Public">General Public Only</option>
+    </select>
+    <select id="admProvFilter" onchange="renderAdminTable()">
+      <option value="">All Provinces</option>
+      <option>Punjab</option><option>Sindh</option><option>KPK</option>
+      <option>Balochistan</option><option>Islamabad (ICT)</option>
+      <option>Azad Jammu & Kashmir</option><option>Gilgit-Baltistan</option>
+    </select>
+  </div>
+
+  <div class="tbl-wrap">
+    <table class="adm-tbl">
+      <thead><tr id="adm-thead"></tr></thead>
+      <tbody id="adm-tbody"></tbody>
+    </table>
+    <div class="empty-state" id="adm-empty">No responses yet. Share the survey to start collecting data.</div>
+  </div>
+  <div class="adm-pag" id="adm-pag"></div>
+
+  <div class="setup-panel">
+    <h3>📧 Google Sheets + Email Notification Setup</h3>
+    <p style="font-size:.8rem;color:var(--t2);margin-bottom:1rem;line-height:1.5">One-time setup. After this, every response saves to your Google Sheet AND you get an email notification.</p>
+    <div class="step-list">
+      <div class="stp"><span>Go to <strong>sheets.google.com</strong> → Create a new blank spreadsheet.</span></div>
+      <div class="stp"><span>Click <strong>Extensions → Apps Script</strong>. Delete all existing code.</span></div>
+      <div class="stp"><span>Paste the script below. <strong style="color:#dc2626">Change YOUR_EMAIL</strong> on line 2 to your Gmail/institutional email. This is where email notifications go.</span></div>
+    </div>
+    <div class="code-box" id="appsScriptCode">// ===== YOUR NOTIFICATION EMAIL — CHANGE THIS =====
+var NOTIFY_EMAIL = "abdulhaseebtanoli2007@gmail.com";
+// =================================================
+
+function doPost(e) {
+  var lock = LockService.getScriptLock();
+  lock.waitLock(30000);
+  try {
+    var ss = SpreadsheetApp.getActiveSpreadsheet();
+    var sh = ss.getSheetByName("Survey Responses");
+    if (!sh) sh = ss.insertSheet("Survey Responses");
+    var d = JSON.parse(e.postData.contents);
+    var keys = Object.keys(d);
+    if (sh.getLastRow() === 0) {
+      sh.appendRow(keys);
+      var hr = sh.getRange(1, 1, 1, keys.length);
+      hr.setBackground("#064e3b");
+      hr.setFontColor("#ffffff");
+      hr.setFontWeight("bold");
+    }
+    sh.appendRow(keys.map(function(k) { return d[k] || ""; }));
+
+    if (NOTIFY_EMAIL) {
+      var subject = "📊 New Survey Response — " + (d.formType || "Unknown")
+        + " | " + (d.province || "") + (d.district ? ", " + d.district : "");
+      var body = "=== PAKISTAN CLIMATE SURVEY 2026 — PIEAS ===\n\n"
+        + "Form Type:  " + (d.formType || "") + "\n"
+        + "Timestamp:  " + (d.timestamp || "") + "\n"
+        + "Name:       " + (d.name || "") + "\n"
+        + "Email:      " + (d.email || "") + "\n"
+        + "Phone:      " + (d.phone || "") + "\n"
+        + "Province:   " + (d.province || "") + "\n"
+        + "District:   " + (d.district || "") + "\n"
+        + (d.gender ? "Gender:     " + d.gender + "\n" : "")
+        + (d.qualification ? "Qual:       " + d.qualification + "\n" : "")
+        + (d.field ? "Field:      " + d.field + "\n" : "")
+        + "\n--- Full Response ---\n"
+        + JSON.stringify(d, null, 2);
+      MailApp.sendEmail({ to: NOTIFY_EMAIL, subject: subject, body: body });
+    }
+
+    return ContentService
+      .createTextOutput(JSON.stringify({ status: "success" }))
+      .setMimeType(ContentService.MimeType.JSON);
+  } catch (err) {
+    return ContentService
+      .createTextOutput(JSON.stringify({ status: "error", msg: err.message }))
+      .setMimeType(ContentService.MimeType.JSON);
+  } finally { lock.releaseLock(); }
+}
+
+function doGet() {
+  return ContentService.createTextOutput("Pakistan Climate Survey 2026 — PIEAS — Active");
+}</div>
+    <button class="copy-code" onclick="copyScript()">📋 Copy Script</button>
+    <div class="step-list" style="margin-top:1.25rem">
+      <div class="stp"><span>Click <strong>Deploy → New Deployment</strong> → Type: <strong>Web App</strong> → Execute as: <strong>Me</strong> → Who has access: <strong>Anyone</strong> → Deploy → Authorize.</span></div>
+      <div class="stp"><span>Copy the <strong>Web App URL</strong> and paste it below:</span></div>
+    </div>
+    <div class="url-input-row">
+      <input type="text" id="sheetsUrlInput" placeholder="https://script.google.com/macros/s/.../exec"/>
+      <button onclick="saveSheetsUrl()">Save &amp; Activate</button>
+    </div>
+    <p style="font-size:.72rem;color:var(--t3);margin-top:.5rem">✅ After saving: all new submissions go to Google Sheets AND you receive email notifications. Local storage is always kept as backup.</p>
+  </div>
+</div>
+
+<!-- ══════════════ MAIN CONTENT ══════════════ -->
+<div id="mainContent">
+
+<!-- LANDING PAGE -->
+<div class="landing" id="landing">
+  <div class="urgency-bar">🚨 Pakistan ranks 5th most climate-vulnerable nation globally — yet contributes less than 1% of world emissions <span>| 2026 Survey Open Now</span></div>
+
+  <div class="official-badges">
+    <div class="ob pieas">🎓 PIEAS — Islamabad</div>
+    <div class="ob blue">🌍 IPCC AR6 Informed</div>
+    <div class="ob green">🇺🇳 SDG 13: Climate Action</div>
+    <div class="ob amber">🇵🇰 National Research 2026</div>
+    <div class="ob dark">📰 Academic Publication Track</div>
+  </div>
+
+  <div class="hero">
+    <div class="hero-seal">🌿</div>
+    <h2>Pakistan's Most Urgent<br><em>Climate Crisis Survey</em></h2>
+    <p class="hero-sub">From Gilgit's melting glaciers to Sindh's flooded fields — your ground-level testimony is the data that policymakers, researchers, and international bodies cannot generate without you. This is a rigorous scientific study conducted by PIEAS researchers. Your voice shapes the future.</p>
+
+    <div class="stat-row">
+      <div class="sr-item"><span class="sr-n" id="ctr-total">—</span><span class="sr-l">Responses So Far</span></div>
+      <div class="sr-item"><span class="sr-n">7</span><span class="sr-l">Regions Covered</span></div>
+      <div class="sr-item"><span class="sr-n">2</span><span class="sr-l">Survey Tracks</span></div>
+      <div class="sr-item"><span class="sr-n">2026</span><span class="sr-l">Survey Year</span></div>
+    </div>
+
+    <div class="ethics-note">
+      <span>🔒</span>
+      <span><strong>Research Ethics:</strong> This study is conducted in accordance with academic research ethics standards. All data is collected with informed consent, stored securely, and used exclusively for academic and policy research. Your personal identity will never appear in published outputs.</span>
+    </div>
+
+    <div class="hbadges">
+      <span class="hbadge">⏱ 8–12 minutes</span>
+      <span class="hbadge">🔒 Informed Consent Required</span>
+      <span class="hbadge">📊 Google Sheets Backed</span>
+      <span class="hbadge">🌐 Open Nationwide</span>
+    </div>
+  </div>
+
+  <div class="fcards">
+    <div class="fc pro" onclick="openConsent('pro')">
+      <div class="fc-ico">🎓</div>
+      <h3>Professional / Expert Survey</h3>
+      <p>For doctors, researchers, engineers, graduates, postgrads, PhDs, NGO workers, and anyone with a professional or academic climate perspective.</p>
+      <div class="fc-meta">
+        <div class="fc-mi">5 sections · 14 focused questions</div>
+        <div class="fc-mi">Professional background + research context</div>
+        <div class="fc-mi">Solutions, policy, and expert recommendations</div>
+        <div class="fc-mi">~10–12 minutes to complete</div>
+      </div>
+      <button class="fc-btn">Start Professional Survey →</button>
+    </div>
+    <div class="fc pub" onclick="openConsent('pub')">
+      <div class="fc-ico">🏘️</div>
+      <h3>General Public Survey</h3>
+      <p>For all citizens — students, farmers, workers, housewives, anyone. Your lived experience is irreplaceable data. Simple Roman Urdu &amp; English.</p>
+      <div class="fc-meta">
+        <div class="fc-mi">4 sections · 12 focused questions</div>
+        <div class="fc-mi">Bilingual — Roman Urdu &amp; English</div>
+        <div class="fc-mi">Lived experience &amp; community impact</div>
+        <div class="fc-mi">~7–9 minutes to complete</div>
+      </div>
+      <button class="fc-btn">Start Public Survey →</button>
+    </div>
+  </div>
+  <div class="admin-link"><a onclick="checkAdmin()">Admin Access</a></div>
+</div><!-- /landing -->
+
+
+<!-- ══════════════════════════════════════════════
+     PROFESSIONAL FORM — 5 SECTIONS, 14 QUESTIONS
+     ══════════════════════════════════════════════ -->
+<div class="fw" id="proForm">
+  <div class="back-row"><button class="back-btn" onclick="goBack()">← Back to selection</button></div>
+  <div class="prog">
+    <div class="prog-top"><span class="prog-lbl">Professional Survey — 2026</span><span class="prog-pct" id="proPct">20%</span></div>
+    <div class="prog-bg"><div class="prog-fill" id="proBar" style="width:20%"></div></div>
+    <div class="prog-tip" id="proTip">Section 1 of 5 — Contact & Identity</div>
+    <div class="pdots" id="proDots"></div>
+  </div>
+
+  <!-- PRO S1: Contact -->
+  <div class="sc active" id="pS1">
+    <div class="sc-hdr hg"><div class="sc-hdr-ico">🪪</div><div class="sc-hdr-text"><h2>Contact &amp; Identity</h2><p>Basic information — kept strictly confidential per research ethics</p></div></div>
+    <div class="fact-box">🌡️ <b>Why 2026?</b> After the devastating 2022 mega-floods ($30B damage) and ongoing climate anomalies in 2024–26 — extended cold through April followed by sudden intense rains — Pakistan urgently needs structured data to respond effectively.</div>
+    <div class="sc-body">
+      <div class="ib">🔐 Your information is used solely for research validation, is protected under academic ethics guidelines, and will never be sold, published with identifiers, or shared with third parties.</div>
+
+      <div class="qb">
+        <div class="ql">Full Name <span class="rq">*</span></div>
+        <input type="text" id="p_name" placeholder="Dr. / Mr. / Ms. — Your full name"/>
+        <div class="ve" id="ve_p_name">Please enter your name.</div>
+      </div>
+
+      <div class="r2">
+        <div class="qb">
+          <div class="ql">Email Address <span class="rq">*</span></div>
+          <input type="email" id="p_email" placeholder="your@email.com"/>
+          <div class="ve" id="ve_p_email">Please enter a valid email.</div>
+        </div>
+        <div class="qb">
+          <div class="ql">Phone Number <span class="rq">*</span></div>
+          <div class="ph-wrap"><span class="ph-flag">🇵🇰</span><input type="tel" id="p_phone" placeholder="03XX-XXXXXXX"/></div>
+          <div class="ve" id="ve_p_phone">Format: 03XX-XXXXXXX (11 digits)</div>
+        </div>
+      </div>
+
+      <!-- ★ NEW: Gender field -->
+      <div class="qb">
+        <div class="ql">Gender <span class="opt-tag">Optional</span></div>
+        <div class="qh">For demographic research analysis — completely optional</div>
+        <div class="rg rg-inline">
+          <label class="ro" onclick="selR(this,'p_gender','Male')"><input type="radio" name="p_gender" value="Male"><div class="rc"></div> Male</label>
+          <label class="ro" onclick="selR(this,'p_gender','Female')"><input type="radio" name="p_gender" value="Female"><div class="rc"></div> Female</label>
+          <label class="ro" onclick="selR(this,'p_gender','Non-binary')"><input type="radio" name="p_gender" value="Non-binary"><div class="rc"></div> Non-binary</label>
+          <label class="ro" onclick="selR(this,'p_gender','Prefer not to say')"><input type="radio" name="p_gender" value="Prefer not to say"><div class="rc"></div> Prefer not to say</label>
+        </div>
+      </div>
+
+    </div>
+    <div class="sc-nav"><span></span><button class="btn btn-nx" onclick="pNext(1)">Next →</button></div>
+  </div>
+
+  <!-- PRO S2: Location + Professional Profile -->
+  <div class="sc" id="pS2">
+    <div class="sc-hdr hb"><div class="sc-hdr-ico">📍</div><div class="sc-hdr-text"><h2>Location &amp; Professional Profile</h2><p>Province, district, qualification, and field</p></div></div>
+    <div class="fact-box">🗺️ <b>Location matters:</b> GB faces GLOF disasters, Sindh faces mega-floods, Balochistan faces drought, Punjab faces smog — regional data is essential for targeted policy.</div>
+    <div class="sc-body">
+
+      <div class="qb">
+        <div class="ql">Province / Region <span class="rq">*</span></div>
+        <div class="rg" id="p_prov_rg">
+          <div class="rg-div"><span class="rd-badge rd-prov">صوبے</span> Provinces</div>
+          <label class="ro" onclick="selProvD(this,'p','Punjab')"><input type="radio" name="p_province" value="Punjab"><div class="rc"></div> Punjab</label>
+          <label class="ro" onclick="selProvD(this,'p','Sindh')"><input type="radio" name="p_province" value="Sindh"><div class="rc"></div> Sindh</label>
+          <label class="ro" onclick="selProvD(this,'p','KPK')"><input type="radio" name="p_province" value="KPK"><div class="rc"></div> Khyber Pakhtunkhwa (KPK)</label>
+          <label class="ro" onclick="selProvD(this,'p','Balochistan')"><input type="radio" name="p_province" value="Balochistan"><div class="rc"></div> Balochistan</label>
+          <div class="rg-div"><span class="rd-badge rd-fed">وفاقی علاقے</span> Federal / Special Regions</div>
+          <label class="ro" onclick="selProvD(this,'p','Islamabad (ICT)')"><input type="radio" name="p_province" value="Islamabad (ICT)"><div class="rc"></div> Islamabad Capital Territory (ICT) <span class="terr-tag">Federal</span></label>
+          <label class="ro" onclick="selProvD(this,'p','Azad Jammu & Kashmir')"><input type="radio" name="p_province" value="Azad Jammu & Kashmir"><div class="rc"></div> Azad Jammu &amp; Kashmir (AJK) <span class="terr-tag">Special Region</span></label>
+          <label class="ro" onclick="selProvD(this,'p','Gilgit-Baltistan')"><input type="radio" name="p_province" value="Gilgit-Baltistan"><div class="rc"></div> Gilgit-Baltistan (GB) <span class="terr-tag">Special Region</span></label>
+        </div>
+        <div class="ve" id="ve_p_province">Please select your province.</div>
+      </div>
+
+      <div class="lcol">
+        <div class="qb">
+          <div class="ql">District <span class="rq">*</span></div>
+          <select id="p_district" disabled><option value="" disabled selected>Select region first</option></select>
+          <div class="ve" id="ve_p_district">Please select your district.</div>
+        </div>
+        <div class="qb">
+          <div class="ql">City / Town <span class="opt-tag">Optional</span></div>
+          <input type="text" id="p_city" placeholder="e.g. Rawalpindi, Lahore..."/>
+        </div>
+      </div>
+
+      <hr class="dvd">
+
+      <div class="r2">
+        <div class="qb">
+          <div class="ql">Highest Qualification <span class="rq">*</span></div>
+          <select id="p_qual">
+            <option value="" disabled selected>Select qualification</option>
+            <option>Bachelor's Degree</option>
+            <option>Master's Degree</option>
+            <option>MPhil</option>
+            <option>PhD / Doctorate</option>
+            <option>MBBS / MD / Medical</option>
+            <option>Professional Certification</option>
+            <option>Other</option>
+          </select>
+          <div class="ve" id="ve_p_qual">Please select your qualification.</div>
+        </div>
+        <div class="qb">
+          <div class="ql">Years of Experience <span class="rq">*</span></div>
+          <select id="p_exp">
+            <option value="" disabled selected>Select range</option>
+            <option>Less than 1 year</option>
+            <option>1–3 years</option>
+            <option>3–5 years</option>
+            <option>5–10 years</option>
+            <option>10–20 years</option>
+            <option>20+ years</option>
+          </select>
+          <div class="ve" id="ve_p_exp">Please select experience range.</div>
+        </div>
+      </div>
+
+      <div class="r2">
+        <div class="qb">
+          <div class="ql">Field / Discipline <span class="rq">*</span></div>
+          <select id="p_field">
+            <option value="" disabled selected>Select your field</option>
+            <option>Medicine / Public Health</option>
+            <option>Environmental Science / Ecology</option>
+            <option>Agriculture / Food Sciences</option>
+            <option>Engineering (Civil / Environmental / Other)</option>
+            <option>Materials / Chemical Science</option>
+            <option>Social Sciences / Sociology</option>
+            <option>Economics / Development Studies</option>
+            <option>Geography / Earth Sciences / Climatology</option>
+            <option>Public Policy / Governance / Law</option>
+            <option>Forestry / Wildlife / Biodiversity</option>
+            <option>Education / Academic Research</option>
+            <option>Media / Journalism / Communications</option>
+            <option>Other / Interdisciplinary</option>
+          </select>
+          <div class="ve" id="ve_p_field">Please select your field.</div>
+        </div>
+        <div class="qb">
+          <div class="ql">Institution / Organization <span class="rq">*</span></div>
+          <input type="text" id="p_org" placeholder="e.g. PIEAS, NDMA, WWF-Pakistan..."/>
+          <div class="ve" id="ve_p_org">Please enter your institution.</div>
+        </div>
+      </div>
+
+      <!-- ★ NEW: Urban/Rural and Research Area -->
+      <div class="r2">
+        <div class="qb">
+          <div class="ql">Area Type <span class="rq">*</span></div>
+          <select id="p_area">
+            <option value="" disabled selected>Select area type</option>
+            <option>Urban (Major City)</option>
+            <option>Urban (Small City / Town)</option>
+            <option>Peri-urban (City outskirts)</option>
+            <option>Rural / Village</option>
+            <option>Remote / Mountainous</option>
+          </select>
+          <div class="ve" id="ve_p_area">Please select area type.</div>
+        </div>
+        <div class="qb">
+          <div class="ql">Research Area Relevance <span class="opt-tag">Optional</span></div>
+          <select id="p_research">
+            <option value="" disabled selected>Does your work relate to climate?</option>
+            <option>Directly — My work is climate-related</option>
+            <option>Indirectly — My sector is affected</option>
+            <option>Not directly — General professional</option>
+          </select>
+        </div>
+      </div>
+
+    </div>
+    <div class="sc-nav"><button class="btn btn-bk" onclick="pBack(2)">← Back</button><button class="btn btn-nx" onclick="pNext(2)">Next →</button></div>
+  </div>
+
+  <!-- PRO S3: Climate Assessment (3 questions) -->
+  <div class="sc" id="pS3">
+    <div class="sc-hdr hv"><div class="sc-hdr-ico">🌡️</div><div class="sc-hdr-text"><h2>Expert Climate Assessment</h2><p>3 questions — your professional perspective on Pakistan's climate crisis</p></div></div>
+    <div class="fact-box">📊 <b>2026 Context:</b> Pakistan's 2022 floods caused $30B damage. In 2024–25, Balochistan and KPK saw devastating flash floods. In early 2026, abnormally extended winter cold (through April) followed by sudden intense rainfall disrupted agriculture — consistent with IPCC AR6 climate instability projections for South Asia.</div>
+    <div class="sc-body">
+
+      <div class="qb">
+        <div class="ql">Q1. How severe do you assess the <em>current</em> climate change impact on Pakistan? <span class="rq">*</span></div>
+        <div class="qh">Based on your professional knowledge and observations in 2024–2026</div>
+        <div class="lk-wrap"><div class="lk" id="lp_sev"></div></div>
+        <div class="lk-lbl"><span>1 — Minimal</span><span>5 — Catastrophic</span></div>
+        <div class="ve" id="ve_lp_sev">Please select a rating.</div>
+      </div>
+
+      <div class="qb">
+        <div class="ql">Q2. In your expert opinion — what is the PRIMARY driver of climate vulnerability for Pakistan? <span class="rq">*</span></div>
+        <div class="rg">
+          <label class="ro" onclick="selR(this,'p_cause','global')"><input type="radio" name="p_cause" value="global"><div class="rc"></div> 🏭 Global fossil fuel emissions — Pakistan is primarily a victim of others' actions</label>
+          <label class="ro" onclick="selR(this,'p_cause','deforest')"><input type="radio" name="p_cause" value="deforest"><div class="rc"></div> 🌳 Domestic deforestation &amp; land-use change</label>
+          <label class="ro" onclick="selR(this,'p_cause','agri')"><input type="radio" name="p_cause" value="agri"><div class="rc"></div> 🚜 Agricultural methane &amp; water mismanagement</label>
+          <label class="ro" onclick="selR(this,'p_cause','governance')"><input type="radio" name="p_cause" value="governance"><div class="rc"></div> ⚖️ Governance &amp; institutional failure to adapt</label>
+          <label class="ro" onclick="selR(this,'p_cause','multi')"><input type="radio" name="p_cause" value="multi"><div class="rc"></div> ⚙️ Complex interplay of multiple factors</label>
+        </div>
+        <div class="ve" id="ve_p_cause">Please select an option.</div>
+      </div>
+
+      <div class="qb">
+        <div class="ql">Q3. Should Pakistan prioritize climate <strong>Adaptation</strong> or <strong>Mitigation</strong>? <span class="rq">*</span></div>
+        <div class="rg">
+          <label class="ro" onclick="selR(this,'p_adapt','adapt')"><input type="radio" name="p_adapt" value="adapt"><div class="rc"></div> 🛡️ <strong>Adaptation first</strong> — adjust to impacts that are already locked in</label>
+          <label class="ro" onclick="selR(this,'p_adapt','mitigate')"><input type="radio" name="p_adapt" value="mitigate"><div class="rc"></div> 🌿 <strong>Mitigation first</strong> — reduce domestic emissions urgently</label>
+          <label class="ro" onclick="selR(this,'p_adapt','both')"><input type="radio" name="p_adapt" value="both"><div class="rc"></div> ⚖️ <strong>Both equally</strong> — integrated strategy is essential</label>
+          <label class="ro" onclick="selR(this,'p_adapt','intl')"><input type="radio" name="p_adapt" value="intl"><div class="rc"></div> 🌍 <strong>International advocacy first</strong> — Pakistan must demand climate justice &amp; Loss &amp; Damage compensation</label>
+        </div>
+        <div class="ve" id="ve_p_adapt">Please select an option.</div>
+      </div>
+
+    </div>
+    <div class="sc-nav"><button class="btn btn-bk" onclick="pBack(3)">← Back</button><button class="btn btn-nx" onclick="pNext(3)">Next →</button></div>
+  </div>
+
+  <!-- PRO S4: Observed Impacts (7 Likert + 1 text) -->
+  <div class="sc" id="pS4">
+    <div class="sc-hdr hr"><div class="sc-hdr-ico">🌊</div><div class="sc-hdr-text"><h2>Observed Impacts — Your Region</h2><p>Rate severity of each issue (1 = not observed, 5 = catastrophic)</p></div></div>
+    <div class="fact-box">👁️ <b>Your Regional Data:</b> Rate based on what you have personally observed or professionally assessed in your province/district. Please rate ALL 7 indicators — this section is critical for regional policy mapping. At least 4 ratings required.</div>
+    <div class="sc-body">
+
+      <div class="qb"><div class="ql">Q4. 🔥 Extreme Heatwaves / Prolonged Heat <span class="rq">*</span></div><div class="qh">Dangerous temperature spikes, heat stroke, urban heat island, loo — including 2024–26 patterns</div><div class="lk-wrap"><div class="lk" id="lp_heat"></div></div><div class="lk-lbl"><span>Not Observed</span><span>Catastrophic</span></div><div class="ve" id="ve_lp_heat">Please rate this impact.</div></div>
+      <div class="qb"><div class="ql">Q5. 🌊 Flooding / Flash Floods / GLOFs <span class="rq">*</span></div><div class="qh">River flooding, cloudburst, glacial lake outburst floods, 2022/2024/2025 mega-floods</div><div class="lk-wrap"><div class="lk" id="lp_flood"></div></div><div class="lk-lbl"><span>Not Observed</span><span>Catastrophic</span></div><div class="ve" id="ve_lp_flood">Please rate this impact.</div></div>
+      <div class="qb"><div class="ql">Q6. 🌧️ Irregular Rainfall / Monsoon Disruption <span class="rq">*</span></div><div class="qh">Unseasonal rain, extended winters into April 2026, erratic monsoon, drought years</div><div class="lk-wrap"><div class="lk" id="lp_rain"></div></div><div class="lk-lbl"><span>Not Observed</span><span>Catastrophic</span></div><div class="ve" id="ve_lp_rain">Please rate this impact.</div></div>
+      <div class="qb"><div class="ql">Q7. 💧 Water Scarcity / Groundwater Crisis <span class="rq">*</span></div><div class="qh">River flow reduction, aquifer depletion, freshwater access — particularly in Balochistan, Sindh, South Punjab</div><div class="lk-wrap"><div class="lk" id="lp_water"></div></div><div class="lk-lbl"><span>Not Observed</span><span>Catastrophic</span></div><div class="ve" id="ve_lp_water">Please rate this impact.</div></div>
+      <div class="qb"><div class="ql">Q8. 🌾 Agricultural Disruption <span class="rq">*</span></div><div class="qh">Crop failures, soil degradation, pest outbreaks, reduced yields, farmer livelihoods</div><div class="lk-wrap"><div class="lk" id="lp_agri"></div></div><div class="lk-lbl"><span>Not Observed</span><span>Catastrophic</span></div><div class="ve" id="ve_lp_agri">Please rate this impact.</div></div>
+      <div class="qb"><div class="ql">Q9. 🏥 Public Health Impacts <span class="rq">*</span></div><div class="qh">Heat stroke, vector-borne diseases (dengue, malaria), respiratory illness, waterborne diseases</div><div class="lk-wrap"><div class="lk" id="lp_health"></div></div><div class="lk-lbl"><span>Not Observed</span><span>Catastrophic</span></div><div class="ve" id="ve_lp_health">Please rate this impact.</div></div>
+      <div class="qb"><div class="ql">Q10. 🌫️ Air Quality / Smog / Dust <span class="rq">*</span></div><div class="qh">PM2.5 spikes, Lahore-type smog crises, wildfire smoke, dust storms</div><div class="lk-wrap"><div class="lk" id="lp_air"></div></div><div class="lk-lbl"><span>Not Observed</span><span>Catastrophic</span></div><div class="ve" id="ve_lp_air">Please rate this impact.</div></div>
+
+      <hr class="dvd">
+      <div class="qb">
+        <div class="ql">Q11. What is the SINGLE most severe climate impact in your specific region? <span class="rq">*</span></div>
+        <input type="text" id="p_top" placeholder="e.g. Smog crisis in Lahore, GLOF flooding in GB, Water table collapse in Balochistan..."/>
+        <div class="ve" id="ve_p_top">Please describe the key impact in your region.</div>
+      </div>
+
+    </div>
+    <div class="sc-nav"><button class="btn btn-bk" onclick="pBack(4)">← Back</button><button class="btn btn-nx" onclick="pNext(4)">Next →</button></div>
+  </div>
+
+  <!-- PRO S5: Solutions & Final -->
+  <div class="sc" id="pS5">
+    <div class="sc-hdr ha"><div class="sc-hdr-ico">💡</div><div class="sc-hdr-text"><h2>Solutions, Recommendations &amp; Close</h2><p>Last section — your expert guidance for Pakistan's policymakers</p></div></div>
+    <div class="fact-box">🏆 <b>Final section!</b> Your professional recommendations will contribute directly to Pakistan's 2026 climate research record and potential journal publication at PIEAS and international venues.</div>
+    <div class="sc-body">
+
+      <div class="qb">
+        <div class="ql">Q12. Which sectors need the most URGENT climate intervention in Pakistan? <span class="opt-tag">Select all that apply</span></div>
+        <div class="ig">
+          <div class="io" onclick="togIo(this)"><span class="ii">💧</span>Water Resource Management</div>
+          <div class="io" onclick="togIo(this)"><span class="ii">🌾</span>Agricultural &amp; Food Security Reform</div>
+          <div class="io" onclick="togIo(this)"><span class="ii">🏥</span>Public Health &amp; Disease Control</div>
+          <div class="io" onclick="togIo(this)"><span class="ii">⚡</span>Renewable Energy Transition</div>
+          <div class="io" onclick="togIo(this)"><span class="ii">🌳</span>Afforestation / Ecosystem Restoration</div>
+          <div class="io" onclick="togIo(this)"><span class="ii">🏙️</span>Urban Climate Planning &amp; Heat Mitigation</div>
+          <div class="io" onclick="togIo(this)"><span class="ii">🌊</span>Flood Early Warning &amp; Disaster Management</div>
+          <div class="io" onclick="togIo(this)"><span class="ii">🏗️</span>Climate-Resilient Infrastructure</div>
+          <div class="io" onclick="togIo(this)"><span class="ii">📚</span>Climate Education &amp; Research Funding</div>
+          <div class="io" onclick="togIo(this)"><span class="ii">⚖️</span>Climate Justice &amp; Loss &amp; Damage Compensation</div>
+        </div>
+      </div>
+
+      <div class="qb">
+        <div class="ql">Q13. Your single most important, actionable recommendation for Pakistan's climate crisis — cite a specific problem, region, and solution: <span class="rq">*</span></div>
+        <textarea id="p_rec" placeholder="e.g. Establish a real-time GLOF early warning network in Gilgit-Baltistan covering the 3,000+ glacial lakes, with SMS alerts to downstream villages..."></textarea>
+        <div class="ve" id="ve_p_rec">Please provide your recommendation.</div>
+      </div>
+
+      <div class="qb">
+        <div class="ql">Q14. Would you be willing to participate in future research panels or expert consultations?</div>
+        <div class="rg">
+          <label class="ro" onclick="selR(this,'p_follow','yes')"><input type="radio" name="p_follow" value="yes"><div class="rc"></div> ✅ Yes — please contact me for follow-up research</label>
+          <label class="ro" onclick="selR(this,'p_follow','maybe')"><input type="radio" name="p_follow" value="maybe"><div class="rc"></div> 🤔 Maybe — depends on topic and time</label>
+          <label class="ro" onclick="selR(this,'p_follow','no')"><input type="radio" name="p_follow" value="no"><div class="rc"></div> No — not at this time</label>
+        </div>
+      </div>
+
+      <div class="qb">
+        <div class="ql">Any additional message, research reference, or comment? <span class="opt-tag">Optional</span></div>
+        <textarea id="p_extra" placeholder="Any other thoughts, data references, or contact preferences..."></textarea>
+      </div>
+
+    </div>
+    <div class="sc-nav"><button class="btn btn-bk" onclick="pBack(5)">← Back</button><button class="btn btn-sb" onclick="submitForm('pro')">✅ Submit Survey</button></div>
+  </div>
+</div><!-- /proForm -->
+
+
+<!-- ══════════════════════════════════════════════
+     GENERAL PUBLIC FORM — 4 SECTIONS, 12 QUESTIONS
+     ══════════════════════════════════════════════ -->
+<div class="fw" id="pubForm">
+  <div class="back-row"><button class="back-btn" onclick="goBack()">← Waapis / Back to selection</button></div>
+  <div class="prog">
+    <div class="prog-top"><span class="prog-lbl">General Public Survey — 2026</span><span class="prog-pct" id="pubPct">25%</span></div>
+    <div class="prog-bg"><div class="prog-fill" id="pubBar" style="width:25%"></div></div>
+    <div class="prog-tip" id="pubTip">Section 1 of 4 — Apni Pehchaan</div>
+    <div class="pdots" id="pubDots"></div>
+  </div>
+
+  <!-- PUB S1: Contact + Location -->
+  <div class="sc active" id="bS1">
+    <div class="sc-hdr hg"><div class="sc-hdr-ico">👤</div><div class="sc-hdr-text"><h2>Aapki Pehchaan / Your Identity</h2><p>Zaroori malumat — confidential research data</p></div></div>
+    <div class="fact-box">🌊 <b>Kya Aap Jaante Hain?</b> 2022 ke Pakistan ke saailaaab mein 33 million (3.3 crore) log mutasir hue — poori duniya ka sabse bada climate disaster tha. Aapki awaaz is data mein shamil honi chahiye.</div>
+    <div class="sc-body">
+      <div class="ib">🔒 Aapki yeh malumat sirf PIEAS research ke liye hai — kisi ke saath share nahi hogi, aur results mein aapka naam nahi aayega.</div>
+
+      <div class="qb">
+        <div class="ql">Poora Naam / Full Name <span class="rq">*</span></div>
+        <input type="text" id="b_name" placeholder="Aapka poora naam..."/>
+        <div class="ve" id="ve_b_name">Naam zaroori hai.</div>
+      </div>
+      <div class="r2">
+        <div class="qb">
+          <div class="ql">Email / Gmail <span class="rq">*</span></div>
+          <input type="email" id="b_email" placeholder="your@gmail.com"/>
+          <div class="ve" id="ve_b_email">Sahi email dalein.</div>
+        </div>
+        <div class="qb">
+          <div class="ql">Phone Number <span class="rq">*</span></div>
+          <div class="ph-wrap"><span class="ph-flag">🇵🇰</span><input type="tel" id="b_phone" placeholder="03XX-XXXXXXX"/></div>
+          <div class="ve" id="ve_b_phone">03XX-XXXXXXX (11 digits)</div>
+        </div>
+      </div>
+
+      <!-- ★ NEW: Gender for public form -->
+      <div class="qb">
+        <div class="ql">Jins / Gender <span class="opt-tag">Ikhtiyaari / Optional</span></div>
+        <div class="rg rg-inline">
+          <label class="ro" onclick="selR(this,'b_gender','Male')"><input type="radio" name="b_gender" value="Male"><div class="rc"></div> Mard / Male</label>
+          <label class="ro" onclick="selR(this,'b_gender','Female')"><input type="radio" name="b_gender" value="Female"><div class="rc"></div> Aurat / Female</label>
+          <label class="ro" onclick="selR(this,'b_gender','Prefer not to say')"><input type="radio" name="b_gender" value="Prefer not to say"><div class="rc"></div> Batana nahi chahta</label>
+        </div>
+      </div>
+
+      <hr class="dvd">
+
+      <div class="qb">
+        <div class="ql">Apna Suba / Province <span class="rq">*</span></div>
+        <div class="rg">
+          <div class="rg-div"><span class="rd-badge rd-prov">صوبے</span> Provinces</div>
+          <label class="ro" onclick="selProvD(this,'b','Punjab')"><input type="radio" name="b_province" value="Punjab"><div class="rc"></div> Punjab</label>
+          <label class="ro" onclick="selProvD(this,'b','Sindh')"><input type="radio" name="b_province" value="Sindh"><div class="rc"></div> Sindh</label>
+          <label class="ro" onclick="selProvD(this,'b','KPK')"><input type="radio" name="b_province" value="KPK"><div class="rc"></div> Khyber Pakhtunkhwa (KPK)</label>
+          <label class="ro" onclick="selProvD(this,'b','Balochistan')"><input type="radio" name="b_province" value="Balochistan"><div class="rc"></div> Balochistan</label>
+          <div class="rg-div"><span class="rd-badge rd-fed">وفاقی علاقے</span> Special Regions</div>
+          <label class="ro" onclick="selProvD(this,'b','Islamabad (ICT)')"><input type="radio" name="b_province" value="Islamabad (ICT)"><div class="rc"></div> Islamabad Capital Territory <span class="terr-tag">Federal</span></label>
+          <label class="ro" onclick="selProvD(this,'b','Azad Jammu & Kashmir')"><input type="radio" name="b_province" value="Azad Jammu & Kashmir"><div class="rc"></div> Azad Jammu &amp; Kashmir (AJK) <span class="terr-tag">Special Region</span></label>
+          <label class="ro" onclick="selProvD(this,'b','Gilgit-Baltistan')"><input type="radio" name="b_province" value="Gilgit-Baltistan"><div class="rc"></div> Gilgit-Baltistan (GB) <span class="terr-tag">Special Region</span></label>
+        </div>
+        <div class="ve" id="ve_b_province">Suba chunein.</div>
+      </div>
+
+      <div class="lcol">
+        <div class="qb">
+          <div class="ql">Zila / District <span class="rq">*</span></div>
+          <select id="b_district" disabled><option value="" disabled selected>Pehle suba chunein</option></select>
+          <div class="ve" id="ve_b_district">Zila chunein.</div>
+        </div>
+        <div class="qb">
+          <div class="ql">Shehar / City <span class="opt-tag">Optional</span></div>
+          <input type="text" id="b_city" placeholder="e.g. Lahore, Karachi, Peshawar..."/>
+        </div>
+      </div>
+
+    </div>
+    <div class="sc-nav"><span></span><button class="btn btn-nx" onclick="bNext(1)">Agla Qadam →</button></div>
+  </div>
+
+  <!-- PUB S2: Background (4 questions) -->
+  <div class="sc" id="bS2">
+    <div class="sc-hdr ht"><div class="sc-hdr-ico">📋</div><div class="sc-hdr-text"><h2>Aapka Background</h2><p>4 simple sawalaat — sirf kuch second lagenge</p></div></div>
+    <div class="fact-box">🌿 <b>2026 Pakistan Weather:</b> Is saal April tak sardi rahi — jo unusually lambi thi — phir achanak bahut tez baarshein. Yeh pattern climate change ki nishani hai. Kya aapne bhi aisa mehsoos kiya?</div>
+    <div class="sc-body">
+
+      <div class="r2">
+        <div class="qb">
+          <div class="ql">Q1. Aapki Umra / Age Group <span class="rq">*</span></div>
+          <div class="rg">
+            <label class="ro" onclick="selR(this,'b_age','u18')"><input type="radio" name="b_age" value="u18"><div class="rc"></div> 18 se kam / Under 18</label>
+            <label class="ro" onclick="selR(this,'b_age','18-25')"><input type="radio" name="b_age" value="18-25"><div class="rc"></div> 18–25 saal</label>
+            <label class="ro" onclick="selR(this,'b_age','26-35')"><input type="radio" name="b_age" value="26-35"><div class="rc"></div> 26–35 saal</label>
+            <label class="ro" onclick="selR(this,'b_age','36-50')"><input type="radio" name="b_age" value="36-50"><div class="rc"></div> 36–50 saal</label>
+            <label class="ro" onclick="selR(this,'b_age','51+')"><input type="radio" name="b_age" value="51+"><div class="rc"></div> 51+ saal</label>
+          </div>
+          <div class="ve" id="ve_b_age">Umra chunein.</div>
+        </div>
+
+        <!-- ★ NEW: Occupation field -->
+        <div class="qb">
+          <div class="ql">Q2. Peshaa / Occupation <span class="rq">*</span></div>
+          <div class="rg">
+            <label class="ro" onclick="selR(this,'b_occ','Student')"><input type="radio" name="b_occ" value="Student"><div class="rc"></div> 📚 Student</label>
+            <label class="ro" onclick="selR(this,'b_occ','Farmer/Agriculture')"><input type="radio" name="b_occ" value="Farmer/Agriculture"><div class="rc"></div> 🌾 Kisaan / Farmer</label>
+            <label class="ro" onclick="selR(this,'b_occ','Govt Employee')"><input type="radio" name="b_occ" value="Govt Employee"><div class="rc"></div> 🏛️ Sarkari Mulazim</label>
+            <label class="ro" onclick="selR(this,'b_occ','Private Sector')"><input type="radio" name="b_occ" value="Private Sector"><div class="rc"></div> 🏢 Private Sector</label>
+            <label class="ro" onclick="selR(this,'b_occ','Self-Employed/Business')"><input type="radio" name="b_occ" value="Self-Employed/Business"><div class="rc"></div> 🛒 Karobar / Business</label>
+            <label class="ro" onclick="selR(this,'b_occ','Housewife')"><input type="radio" name="b_occ" value="Housewife"><div class="rc"></div> 🏡 Ghar-daari / Housewife</label>
+            <label class="ro" onclick="selR(this,'b_occ','Daily Wage/Labour')"><input type="radio" name="b_occ" value="Daily Wage/Labour"><div class="rc"></div> ⚒️ Mazdoor / Daily Wage</label>
+            <label class="ro" onclick="selR(this,'b_occ','Other')"><input type="radio" name="b_occ" value="Other"><div class="rc"></div> Doosra / Other</label>
+          </div>
+          <div class="ve" id="ve_b_occ">Peshaa chunein.</div>
+        </div>
+      </div>
+
+      <div class="qb">
+        <div class="ql">Q3. Taleem / Education Level <span class="rq">*</span></div>
+        <div class="rg rg-inline">
+          <label class="ro" onclick="selR(this,'b_edu','primary')"><input type="radio" name="b_edu" value="primary"><div class="rc"></div> Primary / Middle</label>
+          <label class="ro" onclick="selR(this,'b_edu','matric')"><input type="radio" name="b_edu" value="matric"><div class="rc"></div> Matric</label>
+          <label class="ro" onclick="selR(this,'b_edu','inter')"><input type="radio" name="b_edu" value="inter"><div class="rc"></div> Inter / FA / FSc</label>
+          <label class="ro" onclick="selR(this,'b_edu','grad')"><input type="radio" name="b_edu" value="grad"><div class="rc"></div> Bachelor's</label>
+          <label class="ro" onclick="selR(this,'b_edu','post')"><input type="radio" name="b_edu" value="post"><div class="rc"></div> Master's ya zyada</label>
+        </div>
+        <div class="ve" id="ve_b_edu">Taleem level chunein.</div>
+      </div>
+
+      <div class="qb">
+        <div class="ql">Q4. Kya aapko lagta hai ke Pakistan mein climate change (موسمی تبدیلی) ek bari problem hai? <span class="rq">*</span></div>
+        <div class="rg">
+          <label class="ro" onclick="selR(this,'b_aware','critical')"><input type="radio" name="b_aware" value="critical"><div class="rc"></div> 🚨 Haan, bahut bari aur foori problem — bilkul zaroor amal karna chahiye</label>
+          <label class="ro" onclick="selR(this,'b_aware','serious')"><input type="radio" name="b_aware" value="serious"><div class="rc"></div> 😟 Haan, serious hai lekin dheere dheere solve hogi</label>
+          <label class="ro" onclick="selR(this,'b_aware','some')"><input type="radio" name="b_aware" value="some"><div class="rc"></div> 🤔 Kuch hoti hai, lekin zyada overreaction lag rahi hai</label>
+          <label class="ro" onclick="selR(this,'b_aware','no')"><input type="radio" name="b_aware" value="no"><div class="rc"></div> 🙅 Nahi, mere hisaab se badi problem nahi hai</label>
+        </div>
+        <div class="ve" id="ve_b_aware">Ek option chunein.</div>
+      </div>
+
+    </div>
+    <div class="sc-nav"><button class="btn btn-bk" onclick="bBack(2)">← Waapis</button><button class="btn btn-nx" onclick="bNext(2)">Agla Qadam →</button></div>
+  </div>
+
+  <!-- PUB S3: Observed Effects + Personal Impact -->
+  <div class="sc" id="bS3">
+    <div class="sc-hdr hr"><div class="sc-hdr-ico">🌡️</div><div class="sc-hdr-text"><h2>Aapne Kya Dekha? Apne Ilaaqe Mein</h2><p>Har masle ki severity batain (1=Bilkul nahi, 5=Bahut shadeed)</p></div></div>
+    <div class="fact-box">👁️ <b>Aapka Mushahida Sabse Ahem Hai!</b> Jo aap roz apni aankhon se dekhte hain — woh data jo koi satellite ya scientist nahi de sakta. Aapka tajruba science hai.</div>
+    <div class="sc-body">
+
+      <div class="qb"><div class="ql">Q5. 🔥 Shadeed Garmi / Extreme Heat</div><div class="qh">Garmi barhi? Heat stroke, loo? 2024–2026 mein?</div><div class="lk-wrap"><div class="lk" id="lb_heat"></div></div><div class="lk-lbl"><span>Bilkul Nahi (1)</span><span>Bahut Shadeed (5)</span></div></div>
+      <div class="qb"><div class="ql">Q6. 🌊 Saailaaab / Flooding</div><div class="qh">Paani chadhaa? Ghar, khet, raaste mutasir hue?</div><div class="lk-wrap"><div class="lk" id="lb_flood"></div></div><div class="lk-lbl"><span>Bilkul Nahi (1)</span><span>Bahut Shadeed (5)</span></div></div>
+      <div class="qb"><div class="ql">Q7. 🌧️ Baarish mein Tabdeeli</div><div class="qh">Zyada ya kam baarish? Ghalat mausam mein? 2026 mein April tak sardi phir achanak tez baarish?</div><div class="lk-wrap"><div class="lk" id="lb_rain"></div></div><div class="lk-lbl"><span>Bilkul Nahi (1)</span><span>Bahut Zyada (5)</span></div></div>
+      <div class="qb"><div class="ql">Q8. 💧 Paani ki Kami / Water Shortage</div><div class="qh">Peene ya ziraet ka paani mushkil hua?</div><div class="lk-wrap"><div class="lk" id="lb_water"></div></div><div class="lk-lbl"><span>Bilkul Nahi (1)</span><span>Bahut Shadeed (5)</span></div></div>
+      <div class="qb"><div class="ql">Q9. 🌾 Kheti ko Nuqsaan / Agricultural Damage</div><div class="qh">Fasal kharab hoi, zameen barbaad, pet ki kami?</div><div class="lk-wrap"><div class="lk" id="lb_agri"></div></div><div class="lk-lbl"><span>Bilkul Nahi (1)</span><span>Bahut Shadeed (5)</span></div></div>
+      <div class="qb"><div class="ql">Q10. 🌫️ Hawaa ki Kharaabi / Air Pollution</div><div class="qh">Smog, dhuaan, saans lena mushkil? Lahore, Faisalabad, Peshawar?</div><div class="lk-wrap"><div class="lk" id="lb_air"></div></div><div class="lk-lbl"><span>Bilkul Nahi (1)</span><span>Bahut Shadeed (5)</span></div></div>
+
+      <hr class="dvd">
+
+      <div class="qb">
+        <div class="ql">Q11. Kya aapke ghar ya khet ko kabhi climate disaster se seedha nuqsaan hua? <span class="rq">*</span></div>
+        <div class="rg">
+          <label class="ro" onclick="selR(this,'b_dmg','severe')"><input type="radio" name="b_dmg" value="severe"><div class="rc"></div> 😢 Haan, bahut bada nuqsaan — ghar/khet tabah, naqal-makan karna para</label>
+          <label class="ro" onclick="selR(this,'b_dmg','some')"><input type="radio" name="b_dmg" value="some"><div class="rc"></div> 😟 Haan, kuch nuqsaan hua — maaliyati ya jaaydaad ka</label>
+          <label class="ro" onclick="selR(this,'b_dmg','near')"><input type="radio" name="b_dmg" value="near"><div class="rc"></div> 😰 Mere qareeb hua, mujhe seedha nahi hua</label>
+          <label class="ro" onclick="selR(this,'b_dmg','no')"><input type="radio" name="b_dmg" value="no"><div class="rc"></div> 🙏 Nahi, seedha nuqsaan nahi hua</label>
+        </div>
+        <div class="ve" id="ve_b_dmg">Ek option chunein.</div>
+      </div>
+
+    </div>
+    <div class="sc-nav"><button class="btn btn-bk" onclick="bBack(3)">← Waapis</button><button class="btn btn-nx" onclick="bNext(3)">Agla Qadam →</button></div>
+  </div>
+
+  <!-- PUB S4: Your Voice -->
+  <div class="sc" id="bS4">
+    <div class="sc-hdr ha"><div class="sc-hdr-ico">💬</div><div class="sc-hdr-text"><h2>Aapki Awaaz — Pakistan ka Mustaqbil</h2><p>Aakhri section — sirf 2 sawal baqi hain!</p></div></div>
+    <div class="fact-box">🏆 <b>Aakhri Section!</b> Aap ne bahut accha kiya. Yeh aakhri do sawal Pakistan ke researchers aur policymakers ko seedha message denge. Shukriya!</div>
+    <div class="sc-body">
+
+      <div class="qb">
+        <div class="ql">Q12. Sehat pe kya asar para? / Health Impacts <span class="opt-tag">Sab jo lagu hon / Select all</span></div>
+        <div class="ig">
+          <div class="io" onclick="togIo(this)"><span class="ii">🌡️</span>Heat stroke / Garmi ki bimari</div>
+          <div class="io" onclick="togIo(this)"><span class="ii">🦟</span>Dengue / Malaria / Cholera</div>
+          <div class="io" onclick="togIo(this)"><span class="ii">😷</span>Saans ki takleef / Smog allergy</div>
+          <div class="io" onclick="togIo(this)"><span class="ii">💧</span>Gaande paani se bimari</div>
+          <div class="io" onclick="togIo(this)"><span class="ii">😰</span>Tension / Zehnii stress — climate se</div>
+          <div class="io" onclick="togIo(this)"><span class="ii">🍽️</span>Khaane ki kami / Food shortage</div>
+          <div class="io" onclick="togIo(this)"><span class="ii">✅</span>Koi nahi — Alhamdulillah</div>
+        </div>
+      </div>
+
+      <div class="qb">
+        <div class="ql">Q13. <strong>SABSE AHEM SAWAL:</strong> Pakistan ko climate change ke liye SABSE PEHLE kya karna chahiye? <span class="rq">*</span></div>
+        <div class="rg">
+          <label class="ro" onclick="selR(this,'b_pri','trees')"><input type="radio" name="b_pri" value="trees"><div class="rc"></div> 🌳 Zyada darakht lagaain — 10 Arab Ped Lagao jaise programs</label>
+          <label class="ro" onclick="selR(this,'b_pri','water')"><input type="radio" name="b_pri" value="water"><div class="rc"></div> 💧 Paani ki hifazat — dams, canals, saaf paani</label>
+          <label class="ro" onclick="selR(this,'b_pri','floods')"><input type="radio" name="b_pri" value="floods"><div class="rc"></div> 🌊 Saailaaab se bachao — embankments, early warning system</label>
+          <label class="ro" onclick="selR(this,'b_pri','energy')"><input type="radio" name="b_pri" value="energy"><div class="rc"></div> ⚡ Solar / Renewable energy aam karo</label>
+          <label class="ro" onclick="selR(this,'b_pri','edu')"><input type="radio" name="b_pri" value="edu"><div class="rc"></div> 📚 Climate awareness campaigns — logon ko sikhao</label>
+          <label class="ro" onclick="selR(this,'b_pri','intl')"><input type="radio" name="b_pri" value="intl"><div class="rc"></div> 🌍 Duniya se paisa maango — Pakistan ne emissions nahi ki, compensation milna chahiye</label>
+        </div>
+        <div class="ve" id="ve_b_pri">Ek option chunein.</div>
+      </div>
+
+      <div class="qb">
+        <div class="ql">Pakistan ke leaders ko kya message dena chahte hain? <span class="opt-tag">Ikhtiyaari / Optional</span></div>
+        <textarea id="b_msg" placeholder="Jo bhi aap kehna chahte hain — apni bhasha mein — yahan likhen..."></textarea>
+      </div>
+
+    </div>
+    <div class="sc-nav"><button class="btn btn-bk" onclick="bBack(4)">← Waapis</button><button class="btn btn-sb" onclick="submitForm('pub')">✅ Survey Submit Karein</button></div>
+  </div>
+</div><!-- /pubForm -->
+
+
+<!-- ══════════════ THANK YOU ══════════════ -->
+<div class="ty" id="ty">
+  <div class="ty-ico">🌿</div>
+  <h2>Shukriya! / Thank You!</h2>
+  <p>Aapka response Pakistan ki climate research mein shamil ho gaya. PIEAS research team yeh data policymakers aur international researchers tak pahunchayegi.</p>
+  <div class="ty-card">
+    <h4>📋 Submission Summary</h4>
+    <div class="ty-row"><span class="trl">Survey Track</span><span id="ty-type">—</span></div>
+    <div class="ty-row"><span class="trl">Location</span><span id="ty-region">—</span></div>
+    <div class="ty-row"><span class="trl">Saved To</span><span id="ty-status">—</span></div>
+    <div class="ty-row"><span class="trl">Total Responses</span><span id="ty-total">—</span></div>
+    <div class="ty-row"><span class="trl">Research Institution</span><span>PIEAS, Islamabad</span></div>
+  </div>
+  <p class="ty-id" id="ty-id"></p>
+  <div class="ty-btns">
+    <button class="ty-btn pr" onclick="location.reload()">🔄 Fill Another Survey</button>
+    <button class="ty-btn ot" onclick="shareForm()">📤 Share This Survey</button>
+  </div>
+</div>
+
+</div><!-- /mainContent -->
+
+<!-- ══════════════ ACADEMIC FOOTER ══════════════ -->
+<footer class="acad-footer">
+  <div class="inst">Pakistan Institute of Engineering &amp; Applied Sciences (PIEAS)</div>
+  <div class="dept">Department of Metallurgy &amp; Materials Engineering | BS Program 2025–2029</div>
+  <div class="info">
+    This survey is conducted as part of an academic research project on climate change perception and impact assessment in Pakistan. Data collected will be used for research publication and evidence-based policy recommendations.<br>
+    All participation is voluntary and data is handled according to academic research ethics standards.
+  </div>
+  <div class="divln"></div>
+  <div class="copy">© 2026 PIEAS National Research Initiative | Contact: <span id="footer-email"></span> | Survey Year: 2026</div>
+</footer>
+
+<script>
+// ======================== INIT CONFIG DISPLAY ========================
+document.getElementById('consent-email').textContent = CONFIG.CONTACT_EMAIL;
+document.getElementById('footer-email').textContent = CONFIG.CONTACT_EMAIL;
+
+// ======================== TICKER ========================
+const TICKER_MSGS = [
+  "🚨 2026: Pakistan mein winter April tak extended rahi — phir achanak shadeed baarshein — PIEAS Research",
+  "🌊 2024–25: Balochistan aur KPK mein flash floods ne hazaron gharon ko tabah kiya",
+  "🔥 Jacobabad — duniya ke garmin sheharoN mein: 53°C recorded (WMO 2022)",
+  "🏔️ GB mein 3,000+ glacial lakes GLOF ka khatra — 7 million log risk mein (NDMA 2024)",
+  "🌾 Climate change se Pakistan ki wheat paidawar 2050 tak 20% tak gir sakti hai (CGIAR)",
+  "💧 Punjab ka groundwater 1 meter har saal neecha ja raha hai (PCRWR 2023)",
+  "🌫️ Lahore duniya ke sabse zyada smog wale sheharoN mein — PM2.5 WHO limit se 10x zyada",
+  "🌍 Pakistan contributes less than 1% of global CO₂ but ranks Top 5 climate-vulnerable nations (ND-GAIN)",
+  "📊 2022 Pakistan floods: $30 billion damage — worst climate disaster in recorded history (UN 2022)",
+  "🌿 Pakistan 10 Billion Trees: largest reforestation drive in developing world (PTI 2023)",
+  "🇵🇰 Aapka response ahem hai — Pakistan ka 2026 climate dataset taamir kar rahein hain — PIEAS"
+];
+function buildTicker(){
+  const t=document.getElementById('ticker');
+  const msgs=[...TICKER_MSGS,...TICKER_MSGS];
+  t.innerHTML=msgs.map(m=>`<span class="t-item">${m}</span>`).join('');
+}
+buildTicker();
+
+// ======================== CONSENT MODAL ========================
+let pendingFormType = null;
+
+function openConsent(type) {
+  pendingFormType = type;
+  document.getElementById('consentModal').classList.add('active');
+  document.getElementById('consentCheck').checked = false;
+  document.getElementById('consentProceedBtn').disabled = true;
+}
+function toggleConsentBtn() {
+  document.getElementById('consentProceedBtn').disabled = !document.getElementById('consentCheck').checked;
+}
+function declineConsent() {
+  document.getElementById('consentModal').classList.remove('active');
+  pendingFormType = null;
+}
+function proceedConsent() {
+  document.getElementById('consentModal').classList.remove('active');
+  if (pendingFormType) startForm(pendingFormType);
+}
+
+// ======================== PROVINCE → DISTRICT CASCADE ========================
+function selProvD(el, prefix, province) {
+  document.querySelectorAll(`input[name="${prefix}_province"]`).forEach(r=>{
+    r.closest('.ro').classList.remove('sel');
+  });
+  el.classList.add('sel');
+  el.querySelector('input').checked = true;
+  const distId = `${prefix}_district`;
+  const distSel = document.getElementById(distId);
+  distSel.innerHTML = '<option value="" disabled selected>— Select District —</option>';
+  const list = DISTRICTS[province] || [];
+  list.forEach(d=>{const o=document.createElement('option');o.value=d;o.textContent=d;distSel.appendChild(o);});
+  distSel.disabled = false;
+  clearErr(`${prefix}_province`, `ve_${prefix}_province`);
+}
+
+function clearErr(id, veId) {
+  const el=document.getElementById(id);const ve=document.getElementById(veId);
+  if(el)el.classList.remove('err');if(ve)ve.classList.remove('show');
+}
+
+// ======================== RADIO SELECT ========================
+function selR(el, name, val) {
+  document.querySelectorAll(`input[name="${name}"]`).forEach(r=>r.closest('.ro').classList.remove('sel'));
+  el.classList.add('sel');
+  el.querySelector('input').checked = true;
+}
+
+// ======================== TOGGLE IMPACT OPTION ========================
+function togIo(el){ el.classList.toggle('sel'); }
+
+// ======================== LIKERT SETUP ========================
+const LIKERT_DEFS = [
+  {n:'1',lbl:'1',cls:'s1'},{n:'2',lbl:'2',cls:'s2'},{n:'3',lbl:'3',cls:'s3'},
+  {n:'4',lbl:'4',cls:'s4'},{n:'5',lbl:'5',cls:'s5'}
+];
+function buildLikert(id){
+  const el=document.getElementById(id);
+  if(!el)return;
+  el.innerHTML=LIKERT_DEFS.map(d=>
+    `<div class="lko" data-val="${d.n}" onclick="pickLk(this,'${id}')"><span class="ln">${d.lbl}</span></div>`
+  ).join('');
+}
+function pickLk(el,id){
+  document.querySelectorAll(`#${id} .lko`).forEach(l=>l.className='lko');
+  const cls=['','s1','s2','s3','s4','s5'];
+  el.classList.add(cls[parseInt(el.dataset.val)]);
+  // Clear error
+  const ve=document.getElementById('ve_'+id);if(ve)ve.classList.remove('show');
+}
+function getLk(id){
+  const s=document.querySelector(`#${id} .lko.s1,#${id} .lko.s2,#${id} .lko.s3,#${id} .lko.s4,#${id} .lko.s5`);
+  return s?s.dataset.val:'';
+}
+
+['lp_sev','lp_heat','lp_flood','lp_rain','lp_water','lp_agri','lp_health','lp_air',
+ 'lb_heat','lb_flood','lb_rain','lb_water','lb_agri','lb_air'].forEach(buildLikert);
+
+// ======================== PROGRESS ========================
+const PRO_SECTIONS=5, PUB_SECTIONS=4;
+const PRO_TIPS=['Section 1 of 5 — Contact & Identity','Section 2 of 5 — Location & Profile','Section 3 of 5 — Expert Assessment','Section 4 of 5 — Observed Impacts','Section 5 of 5 — Solutions & Close'];
+const PUB_TIPS=['Section 1 of 4 — Apni Pehchaan','Section 2 of 4 — Background','Section 3 of 4 — Aapne Kya Dekha?','Section 4 of 4 — Aapki Awaaz'];
+
+function buildDots(id,n){
+  const c=document.getElementById(id);c.innerHTML='';
+  for(let i=0;i<n;i++){const d=document.createElement('div');d.className='pd';c.appendChild(d);}
+}
+buildDots('proDots',PRO_SECTIONS);buildDots('pubDots',PUB_SECTIONS);
+
+function updateProg(prefix,cur,total,tips){
+  const pct=Math.round((cur/total)*100);
+  document.getElementById(`${prefix}Pct`).textContent=pct+'%';
+  document.getElementById(`${prefix}Bar`).style.width=pct+'%';
+  document.getElementById(`${prefix}Tip`).textContent=tips[cur-1]||'';
+  document.querySelectorAll(`#${prefix}Dots .pd`).forEach((d,i)=>{
+    d.className='pd'+(i<cur-1?' done':i===cur-1?' active':'');
+  });
+}
+
+// ======================== FORM NAVIGATION ========================
+let proSec=1,pubSec=1;
+
+function startForm(type){
+  document.getElementById('landing').style.display='none';
+  if(type==='pro'){document.getElementById('proForm').classList.add('active');updateProg('pro',1,PRO_SECTIONS,PRO_TIPS);}
+  else{document.getElementById('pubForm').classList.add('active');updateProg('pub',1,PUB_SECTIONS,PUB_TIPS);}
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+function goBack(){
+  if(!confirm('Go back to survey selection? Your current progress will be lost.'))return;
+  document.getElementById('proForm').classList.remove('active');
+  document.getElementById('pubForm').classList.remove('active');
+  document.getElementById('landing').style.display='block';
+  proSec=1;pubSec=1;
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+function showSec(prefix,n,total){
+  const formId=prefix==='p'?'proForm':'pubForm';
+  document.querySelectorAll(`#${formId} .sc`).forEach(s=>s.classList.remove('active'));
+  const sId=`${prefix==='p'?'p':'b'}S${n}`;
+  const s=document.getElementById(sId);if(s)s.classList.add('active');
+  window.scrollTo({top:document.getElementById(formId).offsetTop-80,behavior:'smooth'});
+  updateProg(prefix==='p'?'pro':'pub',n,total,prefix==='p'?PRO_TIPS:PUB_TIPS);
+}
+
+// ======================== VALIDATION HELPERS ========================
+function v(id,msg){
+  const el=document.getElementById(id);const ve=document.getElementById('ve_'+id);
+  if(!el||!el.value.trim()){
+    if(ve){ve.textContent=msg||'Required.';ve.classList.add('show');}
+    if(el)el.classList.add('err');return false;
+  }
+  if(ve)ve.classList.remove('show');if(el)el.classList.remove('err');return true;
+}
+function vSel(id,msg){
+  const el=document.getElementById(id);const ve=document.getElementById('ve_'+id);
+  if(!el||!el.value||el.value===''){
+    if(ve){ve.textContent=msg||'Required.';ve.classList.add('show');}
+    if(el)el.classList.add('err');return false;
+  }
+  if(ve)ve.classList.remove('show');if(el)el.classList.remove('err');return true;
+}
+function vR(name,veId,msg){
+  const checked=document.querySelector(`input[name="${name}"]:checked`);
+  const ve=document.getElementById(veId);
+  if(!checked){if(ve){ve.textContent=msg||'Required.';ve.classList.add('show');}return false;}
+  if(ve)ve.classList.remove('show');return true;
+}
+function vLk(id,veId,msg){
+  const val=getLk(id);const ve=document.getElementById(veId);
+  if(!val){if(ve){ve.textContent=msg||'Please rate this item.';ve.classList.add('show');}return false;}
+  if(ve)ve.classList.remove('show');return true;
+}
+function emailOk(e){return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e);}
+/* ★ FIX: Pakistani phone validation */
+function phoneOk(p){
+  const c=p.replace(/[\s\-\(\)]/g,'');
+  return /^(03\d{9}|\+923\d{9}|003\d{11})$/.test(c);
+}
+
+// ======================== PRO NAVIGATION ========================
+function pNext(sec){
+  let ok=true;
+  if(sec===1){
+    if(!v('p_name','Please enter your full name.'))ok=false;
+    if(!v('p_email','Please enter your email.'))ok=false;
+    else if(!emailOk(document.getElementById('p_email').value)){
+      document.getElementById('ve_p_email').textContent='Please enter a valid email address.';
+      document.getElementById('ve_p_email').classList.add('show');
+      document.getElementById('p_email').classList.add('err');ok=false;
+    }
+    if(!v('p_phone','Phone number required.'))ok=false;
+    else if(!phoneOk(document.getElementById('p_phone').value)){
+      document.getElementById('ve_p_phone').textContent='Invalid format. Use: 03XX-XXXXXXX';
+      document.getElementById('ve_p_phone').classList.add('show');
+      document.getElementById('p_phone').classList.add('err');ok=false;
+    }
+    /* Duplicate email check */
+    if(ok){
+      const email=document.getElementById('p_email').value.trim();
+      if(checkDuplicate(email,'Professional')){
+        if(!confirm('A Professional survey with this email already exists in local records. Submit another response?'))return;
+      }
+    }
+  } else if(sec===2){
+    if(!vR('p_province','ve_p_province','Please select your province.'))ok=false;
+    if(!vSel('p_district','Please select your district.'))ok=false;
+    if(!vSel('p_qual','Please select your qualification.'))ok=false;
+    if(!vSel('p_exp','Please select your experience range.'))ok=false;
+    if(!vSel('p_field','Please select your field.'))ok=false;
+    if(!v('p_org','Please enter your institution/organization.'))ok=false;
+    if(!vSel('p_area','Please select area type.'))ok=false;
+  } else if(sec===3){
+    if(!vLk('lp_sev','ve_lp_sev','Please rate the severity.'))ok=false;
+    if(!vR('p_cause','ve_p_cause','Please select the primary cause.'))ok=false;
+    if(!vR('p_adapt','ve_p_adapt','Please select a strategy.'))ok=false;
+  } else if(sec===4){
+    /* ★ FIX: Now require ALL 7 Likerts in S4 */
+    const likerts=[
+      ['lp_heat','ve_lp_heat'],['lp_flood','ve_lp_flood'],['lp_rain','ve_lp_rain'],
+      ['lp_water','ve_lp_water'],['lp_agri','ve_lp_agri'],['lp_health','ve_lp_health'],
+      ['lp_air','ve_lp_air']
+    ];
+    likerts.forEach(([id,veId])=>{if(!vLk(id,veId))ok=false;});
+    if(!v('p_top','Please describe the key climate impact in your region.'))ok=false;
+  }
+  if(!ok){showToast('Please complete all required fields before proceeding.','error');
+    document.querySelector('.sc.active .ve.show')?.scrollIntoView({behavior:'smooth',block:'center'});
+    return;}
+  proSec=sec+1;showSec('p',proSec,PRO_SECTIONS);
+}
+function pBack(sec){proSec=sec-1;showSec('p',proSec,PRO_SECTIONS);}
+
+// ======================== PUB NAVIGATION ========================
+function bNext(sec){
+  let ok=true;
+  if(sec===1){
+    if(!v('b_name','Naam zaroori hai.'))ok=false;
+    if(!v('b_email','Email dalein.'))ok=false;
+    else if(!emailOk(document.getElementById('b_email').value)){
+      document.getElementById('ve_b_email').textContent='Sahi email dalein.';
+      document.getElementById('ve_b_email').classList.add('show');
+      document.getElementById('b_email').classList.add('err');ok=false;
+    }
+    if(!v('b_phone','Phone number zaroori hai.'))ok=false;
+    else if(!phoneOk(document.getElementById('b_phone').value)){
+      document.getElementById('ve_b_phone').textContent='Format: 03XX-XXXXXXX (11 digits)';
+      document.getElementById('ve_b_phone').classList.add('show');
+      document.getElementById('b_phone').classList.add('err');ok=false;
+    }
+    if(!vR('b_province','ve_b_province','Suba chunein.'))ok=false;
+    if(!vSel('b_district','Zila chunein.'))ok=false;
+    if(ok){
+      const email=document.getElementById('b_email').value.trim();
+      if(checkDuplicate(email,'General Public')){
+        if(!confirm('Is email ke saath pehle bhi response submit ho chuka hai. Phir bhi submit karein?'))return;
+      }
+    }
+  } else if(sec===2){
+    if(!vR('b_age','ve_b_age','Umra chunein.'))ok=false;
+    if(!vR('b_occ','ve_b_occ','Peshaa chunein.'))ok=false;
+    if(!vR('b_edu','ve_b_edu','Taleem level chunein.'))ok=false;
+    if(!vR('b_aware','ve_b_aware','Ek option chunein.'))ok=false;
+  } else if(sec===3){
+    if(!vR('b_dmg','ve_b_dmg','Ek option chunein.'))ok=false;
+  }
+  if(!ok){showToast('Saare zaroori sawal bharein.','error');
+    document.querySelector('.sc.active .ve.show')?.scrollIntoView({behavior:'smooth',block:'center'});
+    return;}
+  pubSec=sec+1;showSec('b',pubSec,PUB_SECTIONS);
+}
+function bBack(sec){pubSec=sec-1;showSec('b',pubSec,PUB_SECTIONS);}
+
+// ======================== DUPLICATE CHECK ========================
+function checkDuplicate(email, formType){
+  return getData().some(d=>d.email?.toLowerCase()===email.toLowerCase()&&d.formType===formType);
+}
+
+// ======================== COLLECT MULTI-SELECT ========================
+function collectIg(container){
+  return Array.from(container.querySelectorAll('.io.sel')).map(el=>el.textContent.trim()).join('; ');
+}
+
+// ======================== SUBMIT ========================
+function gV(id){const el=document.getElementById(id);return el?el.value.trim():'';}
+function gR(name){const el=document.querySelector(`input[name="${name}"]:checked`);return el?el.value:'';}
+
+async function submitForm(type){
+  const id='PKC'+Date.now().toString(36).toUpperCase();
+  const ts=new Date().toLocaleString('en-PK',{timeZone:'Asia/Karachi'});
+  let data={submissionId:id,formType:type==='pro'?'Professional':'General Public',
+    timestamp:ts,surveyYear:'2026',institution:'PIEAS',consentGiven:'Yes'};
+
+  if(type==='pro'){
+    if(!v('p_rec','Please provide your policy recommendation.')){
+      showToast('Please provide your recommendation.','error');return;
+    }
+    Object.assign(data,{
+      name:gV('p_name'),email:gV('p_email'),phone:gV('p_phone'),gender:gR('p_gender'),
+      province:gR('p_province'),district:gV('p_district'),city:gV('p_city'),areaType:gV('p_area'),
+      qualification:gV('p_qual'),field:gV('p_field'),institution_org:gV('p_org'),
+      experience:gV('p_exp'),researchRelevance:gV('p_research'),
+      severityRating:getLk('lp_sev'),primaryCause:gR('p_cause'),adaptVsMitigate:gR('p_adapt'),
+      impactHeat:getLk('lp_heat'),impactFlood:getLk('lp_flood'),impactRain:getLk('lp_rain'),
+      impactWater:getLk('lp_water'),impactAgri:getLk('lp_agri'),impactHealth:getLk('lp_health'),
+      impactAir:getLk('lp_air'),topRegionalIssue:gV('p_top'),
+      prioritySectors:collectIg(document.querySelector('#pS5 .ig')),
+      recommendation:gV('p_rec'),followUp:gR('p_follow'),additionalComments:gV('p_extra')
+    });
+  } else {
+    if(!vR('b_pri','ve_b_pri','Ek option chunein.')){showToast('Saare zaroori sawal bharein.','error');return;}
+    Object.assign(data,{
+      name:gV('b_name'),email:gV('b_email'),phone:gV('b_phone'),gender:gR('b_gender'),
+      province:gR('b_province'),district:gV('b_district'),city:gV('b_city'),
+      ageGroup:gR('b_age'),occupation:gR('b_occ'),education:gR('b_edu'),climateAwareness:gR('b_aware'),
+      impactHeat:getLk('lb_heat'),impactFlood:getLk('lb_flood'),impactRain:getLk('lb_rain'),
+      impactWater:getLk('lb_water'),impactAgri:getLk('lb_agri'),impactAir:getLk('lb_air'),
+      directDamage:gR('b_dmg'),
+      healthImpacts:collectIg(document.querySelector('#bS4 .ig')),
+      govtPriority:gR('b_pri'),personalMessage:gV('b_msg')
+    });
+  }
+
+  const count=saveLocal(data);
+  await sendToSheets(data);
+
+  document.getElementById(type==='pro'?'proForm':'pubForm').classList.remove('active');
+  const ty=document.getElementById('ty');ty.classList.add('active');
+  document.getElementById('ty-type').textContent=data.formType;
+  document.getElementById('ty-region').textContent=(data.province||'')+(data.district?', '+data.district:'');
+  document.getElementById('ty-status').textContent='✅ Local'+(getSheetsUrl()?'+Sheets':'');
+  document.getElementById('ty-total').textContent=count+' response'+(count!==1?'s':'');
+  document.getElementById('ty-id').textContent='Submission ID: '+id;
+  document.getElementById('ctr-total').textContent=count;
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+// ======================== STORAGE ========================
+const STORAGE_KEY='pkclimate_2026_v2';
+function saveLocal(data){
+  let arr=[];try{arr=JSON.parse(localStorage.getItem(STORAGE_KEY)||'[]');}catch(e){}
+  arr.push(data);try{localStorage.setItem(STORAGE_KEY,JSON.stringify(arr));}catch(e){showToast('Storage full — only Sheets saved.','error');}
+  return arr.length;
+}
+function getData(){try{return JSON.parse(localStorage.getItem(STORAGE_KEY)||'[]');}catch(e){return[];}}
+function getSheetsUrl(){return CONFIG.SHEETS_URL||localStorage.getItem('pkc_sheets_url')||'';}
+
+async function sendToSheets(data){
+  const url=getSheetsUrl();if(!url)return;
+  try{
+    await fetch(url,{method:'POST',mode:'no-cors',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)});
+    showToast('✅ Saved to Google Sheets + email notification sent!','success');
+  }catch(e){showToast('⚠️ Sheets sync failed. Data saved locally.','error');}
+}
+
+// ======================== SHARE ========================
+function shareForm(){
+  const url=window.location.href;
+  if(navigator.share){navigator.share({title:'Pakistan Climate Survey 2026 — PIEAS',text:'Yeh important climate survey zaroor fill karein!',url});}
+  else if(navigator.clipboard){navigator.clipboard.writeText(url).then(()=>showToast('Link copied to clipboard!','success'));}
+  else{prompt('Copy this link:',url);}
+}
+
+// ======================== ADMIN ========================
+let chartTypeInst=null,chartProvInst=null,chartTimeInst=null;
+let adminPage=1;const ADMIN_PAGE_SIZE=20;
+
+function checkAdmin(){
+  const pass=prompt('🔐 Admin Access — Enter Password:');
+  if(!pass)return;
+  if(pass===(CONFIG.ADMIN_PASSWORD)){
+    document.getElementById('mainContent').style.display='none';
+    document.getElementById('adminWrap').style.display='block';
+    loadAdminData();
+    const inp=document.getElementById('sheetsUrlInput');
+    if(inp)inp.value=localStorage.getItem('pkc_sheets_url')||'';
+  } else{alert('Incorrect password. Check CONFIG.ADMIN_PASSWORD in the file.');}
+}
+function exitAdmin(){
+  document.getElementById('mainContent').style.display='block';
+  document.getElementById('adminWrap').style.display='none';
+  document.getElementById('ctr-total').textContent=getData().length||'—';
+}
+
+function loadAdminData(){
+  const data=getData();
+  const pro=data.filter(d=>d.formType==='Professional').length;
+  const pub=data.filter(d=>d.formType==='General Public').length;
+  const today=new Date().toDateString();
+  const todayCount=data.filter(d=>{try{return new Date(d.timestamp).toDateString()===today;}catch(e){return false;}}).length;
+  document.getElementById('adm-total').textContent=data.length;
+  document.getElementById('adm-pro').textContent=pro;
+  document.getElementById('adm-pub').textContent=pub;
+  document.getElementById('adm-today').textContent=todayCount;
+  buildCharts(data,pro,pub);
+  renderAdminTable();
+}
+
+function getFilteredData(){
+  const data=getData();
+  const q=(document.getElementById('admSearch')?.value||'').toLowerCase();
+  const ft=document.getElementById('admFilter')?.value||'';
+  const pf=document.getElementById('admProvFilter')?.value||'';
+  return data.filter(r=>{
+    if(ft&&r.formType!==ft)return false;
+    if(pf&&r.province!==pf)return false;
+    if(q){const hay=(r.name+r.email+r.province+r.district+r.institution_org).toLowerCase();if(!hay.includes(q))return false;}
+    return true;
+  });
+}
+
+function renderAdminTable(){
+  adminPage=1;
+  const filtered=getFilteredData();
+  const tbody=document.getElementById('adm-tbody');
+  const thead=document.getElementById('adm-thead');
+  const empty=document.getElementById('adm-empty');
+  if(!filtered.length){thead.innerHTML='';tbody.innerHTML='';empty.style.display='block';document.getElementById('adm-pag').innerHTML='';return;}
+  empty.style.display='none';
+  const cols=['submissionId','formType','timestamp','name','gender','phone','email','province','district','qualification','field','institution_org','occupation','ageGroup'];
+  thead.innerHTML=cols.map(c=>`<th>${c}</th>`).join('');
+  renderPage(filtered,cols);
+}
+
+function renderPage(filtered,cols){
+  const tbody=document.getElementById('adm-tbody');
+  const start=(adminPage-1)*ADMIN_PAGE_SIZE;
+  const slice=filtered.slice().reverse().slice(start,start+ADMIN_PAGE_SIZE);
+  tbody.innerHTML=slice.map(r=>`<tr>${cols.map(c=>`<td title="${(r[c]||'').toString().replace(/"/g,'&quot;')}">${r[c]||'—'}</td>`).join('')}</tr>`).join('');
+  const totalPages=Math.ceil(filtered.length/ADMIN_PAGE_SIZE);
+  const pag=document.getElementById('adm-pag');
+  pag.innerHTML=`<span>Showing ${Math.min(start+1,filtered.length)}–${Math.min(start+ADMIN_PAGE_SIZE,filtered.length)} of ${filtered.length}</span>
+    <button onclick="adminPageChange(-1)" ${adminPage<=1?'disabled':''}>← Prev</button>
+    <span>Page ${adminPage} of ${totalPages}</span>
+    <button onclick="adminPageChange(1)" ${adminPage>=totalPages?'disabled':''}>Next →</button>`;
+}
+
+function adminPageChange(dir){
+  const filtered=getFilteredData();
+  const totalPages=Math.ceil(filtered.length/ADMIN_PAGE_SIZE);
+  adminPage=Math.max(1,Math.min(totalPages,adminPage+dir));
+  const cols=['submissionId','formType','timestamp','name','gender','phone','email','province','district','qualification','field','institution_org','occupation','ageGroup'];
+  renderPage(filtered,cols);
+}
+
+function buildCharts(data,pro,pub){
+  if(chartTypeInst)chartTypeInst.destroy();
+  const ctx1=document.getElementById('chartType').getContext('2d');
+  chartTypeInst=new Chart(ctx1,{type:'doughnut',data:{labels:['Professional','General Public'],datasets:[{data:[pro,pub],backgroundColor:['#064e3b','#b45309'],borderWidth:0}]},options:{plugins:{legend:{position:'bottom',labels:{font:{size:11}}}},cutout:'65%'}});
+
+  const provCounts={};data.forEach(d=>{if(d.province)provCounts[d.province]=(provCounts[d.province]||0)+1;});
+  const provLabels=Object.keys(provCounts);const provVals=provLabels.map(k=>provCounts[k]);
+  if(chartProvInst)chartProvInst.destroy();
+  const ctx2=document.getElementById('chartProv').getContext('2d');
+  chartProvInst=new Chart(ctx2,{type:'bar',data:{labels:provLabels,datasets:[{data:provVals,backgroundColor:'#059669',borderRadius:4,borderWidth:0}]},options:{plugins:{legend:{display:false}},scales:{y:{beginAtZero:true,ticks:{stepSize:1,font:{size:10}}},x:{ticks:{font:{size:8}}}}}});
+
+  const days=[];const now=new Date();
+  for(let i=6;i>=0;i--){const d=new Date(now);d.setDate(d.getDate()-i);days.push(d);}
+  const dayLabels=days.map(d=>d.toLocaleDateString('en',{month:'short',day:'numeric'}));
+  const dayCounts=days.map(day=>data.filter(r=>{if(!r.timestamp)return false;try{return new Date(r.timestamp).toDateString()===day.toDateString();}catch(e){return false;}}).length);
+  if(chartTimeInst)chartTimeInst.destroy();
+  const ctx3=document.getElementById('chartTime').getContext('2d');
+  chartTimeInst=new Chart(ctx3,{type:'line',data:{labels:dayLabels,datasets:[{data:dayCounts,borderColor:'#059669',backgroundColor:'rgba(5,150,105,.1)',fill:true,tension:.4,pointBackgroundColor:'#064e3b',pointRadius:4}]},options:{plugins:{legend:{display:false}},scales:{y:{beginAtZero:true,ticks:{stepSize:1,font:{size:10}}},x:{ticks:{font:{size:9}}}}}});
+}
+
+function downloadCSV(){
+  const data=getData();if(!data.length){alert('No responses yet.');return;}
+  // Get all unique keys
+  const allKeys=new Set();data.forEach(r=>Object.keys(r).forEach(k=>allKeys.add(k)));
+  const keys=[...allKeys];
+  const rows=data.map(r=>keys.map(k=>{
+    const val=(r[k]||'').toString().replace(/"/g,'""');
+    return `"${val}"`;
+  }).join(','));
+  const csv='\uFEFF'+[keys.join(','),...rows].join('\r\n');
+  dlFile(csv,'pakistan_climate_survey_2026_PIEAS_'+new Date().toISOString().split('T')[0]+'.csv','text/csv');
+}
+function downloadJSON(){
+  const data=getData();if(!data.length){alert('No responses yet.');return;}
+  dlFile(JSON.stringify(data,null,2),'pakistan_climate_survey_2026_PIEAS_'+new Date().toISOString().split('T')[0]+'.json','application/json');
+}
+function dlFile(content,name,mime){const b=new Blob([content],{type:mime});const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=name;a.click();URL.revokeObjectURL(a.href);}
+function clearData(){if(!confirm('Delete ALL local responses?\n\nGoogle Sheets data is unaffected.\nThis cannot be undone.'))return;localStorage.removeItem(STORAGE_KEY);loadAdminData();showToast('Local data cleared.','info');}
+
+function saveSheetsUrl(){
+  const url=document.getElementById('sheetsUrlInput').value.trim();
+  if(!url){alert('Please enter the Apps Script URL.');return;}
+  if(!url.startsWith('https://script.google.com')){alert('Invalid URL. Must start with https://script.google.com');return;}
+  localStorage.setItem('pkc_sheets_url',url);CONFIG.SHEETS_URL=url;
+  showToast('✅ URL saved! Future submissions will go to Google Sheets.','success');
+}
+function copyScript(){
+  const code=document.getElementById('appsScriptCode').textContent;
+  navigator.clipboard.writeText(code).then(()=>showToast('✅ Script copied! Paste it in Apps Script editor.','success')).catch(()=>showToast('Please manually select and copy the code.','info'));
+}
+
+// ======================== TOAST ========================
+function showToast(msg,type='info'){
+  const t=document.getElementById('toast');
+  t.textContent=msg;t.className='toast '+type+' show';
+  clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('show'),4500);
+}
+
+// ======================== INIT ========================
+window.addEventListener('DOMContentLoaded',function(){
+  if(window.location.hash==='#admin')checkAdmin();
+  const total=getData().length;
+  if(total>0)document.getElementById('ctr-total').textContent=total;
+});
+</script>
+</body>
+</html>
